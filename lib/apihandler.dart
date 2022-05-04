@@ -33,8 +33,22 @@ gettoken(String? email,String? password) async {
   return res.body.toString();
 }
 
-mefunc(){
-
+mefunc() async{
+  var prefs=await SharedPreferences.getInstance();
+  String? ftoken=await prefs.getString("token");
+  var res=await http.get(
+    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/me"),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'x-auth-token':ftoken!,
+    },
+  );
+  var me=json.decode(res.body);
+  print(me);
+  prefs.setString("id", me["_id"]);
+  prefs.setString("email", me['email']);
+  prefs.setString('name',me['name']);
+  prefs.setString("profile_color", me["profile_color"]);
 }
 
 Future<void> addblogtodb(String title,String content,String userid) async {
@@ -258,6 +272,8 @@ mysavedblogsprofile() async{
     return;
   }
   var blogs=json.decode(res.body);
+  print("QLKWJELKASDJFLKSD");
+  print(blogs);
   for(var i in blogs){
     blogmodel blog=new blogmodel.fromJson(i);
     print(blog.title);

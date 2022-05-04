@@ -13,18 +13,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:http/http.dart' as http;
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:readmore/readmore.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'bala.dart';
 import 'googleauth.dart';
+import 'screens/detailedblog.dart';
 // bool auth=false;
-GoogleSignIn _auth=GoogleSignIn();
 String token="";
 
 void main() async
@@ -54,7 +54,6 @@ void main() async
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     routes: {
-      './loginhome':(context)=>loginhome(),
       './blogdetail':(context)=>blogdetail(new blogmodel.empty(),0),
       './myapp':(context)=>MyApp(),
       './myblogs':(context)=>myblogs()
@@ -65,119 +64,6 @@ void main() async
     ),
     home:finalloginpage(), //(auth)?home():  (alreadylogged)?home():
   ));
-}
-
-
-class loginhome extends StatefulWidget {
-  const loginhome({Key? key}) : super(key: key);
-
-  @override
-  _loginhomeState createState() => _loginhomeState();
-}
-
-class _loginhomeState extends State<loginhome> {
-  String? useruid = "";
-  String email = " ";
-  String password = " ";
-  late FocusNode passFnode;
-  GoogleSignInAccount? _currentUser;
-  var bala="";
-  bool loading=false;
-
-  authfunc(){
-
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    passFnode = FocusNode();
-  }
-  @override
-  void _launchURL() async {
-    const _url = "https://forms.gle/ScqKF8EqBS69LxNCA";
-    if (!await launch(_url)) throw 'Could not launch $_url';
-  }
-  @override
-  void dispose() {
-    // Clean up the focus node when the Form is disposed.
-    passFnode.dispose();
-
-    super.dispose();
-  }
-  bool _loading=false;
-  @override
-  Widget build(BuildContext context) {
-    return  Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xfff50f0f),
-        title: Padding(
-          padding: const EdgeInsets.only(left:10.0),
-          child: Text("BLOGSPOTBIT"),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8,8,10,8),
-            child: ElevatedButton(onPressed: () => {
-              _launchURL()
-            },
-              child: Text("Help",style:TextStyle(color: Color(0xfff50f0f))),
-              style: ElevatedButton.styleFrom(primary: Colors.white),
-            ),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Center(
-          child:  Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image(image: AssetImage("images/FrontBanner.png")),
-              Padding(
-                padding: const EdgeInsets.only(top: 130.0),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      loading=true;
-                    });
-                    // await signInWithGoogle().then((value) async =>{
-                    //   await returntoken(value.user?.displayName, value.user?.email, "password",value.user?.photoURL).then((value1) async {
-                    //     print("nornull"+value1.toString());
-                    //     if(value1 != null){
-                    //       print(value1);
-                    //       await sharedprefFunc(value1);
-                    //     }
-                    //     else{
-                    //       // await gettoken(value.user?.email).then((a) async=>{
-                    //       //   await sharedprefFunc(a.toString())
-                    //       // });
-                    //     }
-                    //     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>home()),(route) => false);
-                    //   })
-                    //
-                    // });
-                    //showblogs();
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image(image: AssetImage("images/gsibtn.png"),height: 33.5,width: 33.5,),
-                        Text("SIGNIN USING GOOGLE",style: TextStyle(color: Color(0xfff50f0f)),),
-                      ],
-                    ),
-                  ),
-                  style: ElevatedButton.styleFrom(primary: Colors.white,),
-                ),
-              ),
-              (loading)?CircularProgressIndicator():Text("")
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class MyApp extends StatefulWidget {
@@ -370,10 +256,11 @@ class _homeState extends State<home> {
   List<int> mylikeslist=[];
   List<int> mybookmarkslist=[];
   bool _loading=true;
+  bool templike=false;
   blogfunc() async{
     var response=await showblogs();
     if(response == "No Blogs Found"){
-      print("BALA NIT");
+      print("NO BLOGS FOUND");
     }
     else{
       print("DATA HAVING");
@@ -400,20 +287,7 @@ class _homeState extends State<home> {
     //   }
     // }
   }
-  mefunc() async{
-    var prefs=await SharedPreferences.getInstance();
-    String? ftoken=await prefs.getString("token");
-    var res=await http.get(
-      Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/me"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-        'x-auth-token':ftoken!,
-      },
-    );
-    var me=json.decode(res.body);
-    print(me);
-    prefs.setString("id", me["_id"]);
-  }
+
   @override
   void initState() {
     blogfunc();
@@ -467,8 +341,18 @@ class _homeState extends State<home> {
                                     children: [
                                       Expanded(
                                         flex: 2,
-                                        child: Text(blogs.elementAt(index).title,
-                                          style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              flex:1 ,
+                                              child: Text(blogs.elementAt(index).title,
+                                                style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
+                                              ),
+                                            ),
+                                            Expanded(flex:2,child: Container(width: double.infinity,),),
+                                            Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){},))
+                                          ],
                                         ),
                                       ),
                                       Divider(
@@ -477,11 +361,19 @@ class _homeState extends State<home> {
                                       Expanded(
                                         flex:8,
                                         child: ListView(
-
+                                          physics: NeverScrollableScrollPhysics(),
                                             children: [
                                             Text(blogs.elementAt(index).content,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 15,
                                               style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
                                             ),
+                                            (blogs.elementAt(index).content.length>900)?TextButton(
+                                              onPressed: (){
+                                                Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
+                                              },
+                                              child: Text("Read More"),
+                                            ):Text(""),
                                           ],
                                         ),
                                       ),
@@ -537,11 +429,15 @@ class _homeState extends State<home> {
                                                 }, icon: Icon(Icons.share)),
                                                 Column(
                                                   children: [
-                                                    (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Colors.red,),onPressed: () async {
-                                                      await removelike(blogs.elementAt(index).blogid);
-                                                      await removefromMylikes(blogs.elementAt(index).blogid);
+                                                    (mylikeslist.contains(blogs.elementAt(index).blogid) || templike)?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Colors.red,),onPressed: () async {
                                                       setState(() {
-                                                        initState();
+                                                        templike=!templike;
+                                                      });
+                                                      await removelike(blogs.elementAt(index).blogid);
+                                                      await removefromMylikes(blogs.elementAt(index).blogid).then((v){
+                                                        setState(() {
+                                                          initState();
+                                                        });
                                                       });
                                                       // addlike(blogs.elementAt(index).blogid);
                                                       // addtomylikes(FirebaseAuth.instance.currentUser?.email, blogs.elementAt(index).blogid);
@@ -549,11 +445,16 @@ class _homeState extends State<home> {
                                                       //   initState();
                                                       // });
                                                     },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
-                                                      await addlike(blogs.elementAt(index).blogid);
-                                                      await addtomylikes(blogs.elementAt(index).blogid);
                                                       setState(() {
-                                                        initState();
+                                                        templike=!templike;
                                                       });
+                                                      await addlike(blogs.elementAt(index).blogid);
+                                                      await addtomylikes(blogs.elementAt(index).blogid).then((v){
+                                                        setState(() {
+                                                          initState();
+                                                        });
+                                                      });
+
                                                     },),
                                                     Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
                                                   ],
@@ -628,12 +529,16 @@ class profile extends StatefulWidget {
 }
 
 class _profileState extends State<profile> {
-  String disname="";
-  String photourl="";
+  String? disname;
+  String? profilecolor;
   userfetchfunc() async{
-        setState(() {
-
+    var prefs=await SharedPreferences.getInstance();
+    setState((){
+      disname= prefs.getString("name");
+      profilecolor= prefs.getString("profile_color");
     });
+
+    // print(int.parse(profilecolor.toString()));
   }
   @override
   Widget build(BuildContext context) {
@@ -647,16 +552,13 @@ class _profileState extends State<profile> {
           children: [
             SizedBox(height: 20,),
             Container(width: double.infinity,),
-            (photourl.isNotEmpty)?CircleAvatar(
+            CircleAvatar(
               radius: 50,
-              child: Text("A"),
-            ):CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.primaries[Random().nextInt(Colors.primaries.length)],
-              child: Text("A",style: TextStyle(fontSize: 40),),
+              child: Text(disname.toString().substring(0,1),style: TextStyle(fontSize: 50),),
+              backgroundColor: Color(int.parse(profilecolor.toString())),
             ),
             SizedBox(height: 20),
-            Text(disname,style: TextStyle(fontSize: 20),),
+            Text(disname.toString(),style: TextStyle(fontSize: 20),),
             SizedBox(height: 20),
             GestureDetector(
               child: Card(
@@ -712,10 +614,7 @@ class _profileState extends State<profile> {
                                 //await deleteme();
                                 final prefs=await SharedPreferences.getInstance();
                                 await prefs.remove("token");
-                                _auth.signOut().then((value) {
-                                  print("SIGNED OUT");
-                                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>finalloginpage()), (route) => false);
-                                });
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>finalloginpage()), (route) => false);
                               }, child: Text("YES")),
                               TextButton(onPressed: (){
                                 Navigator.of(context).pop();
@@ -781,15 +680,44 @@ class _myblogsState extends State<myblogs> {
                   child: Card(
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     elevation: 3,
-                    child: Container(
-                      height: 100,
+                    child:ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: 100
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(10),
-                            child: Text(mybloglist.elementAt(index).title,style: TextStyle(fontSize: 20),),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(mybloglist.elementAt(index).title,style: TextStyle(fontSize: 20),),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Icon(CupertinoIcons.heart_fill,color: Colors.red,),
+                                        SizedBox(width: 10,),
+                                        Text(mybloglist.elementAt(index).likes.toString())
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: 20,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Icon(CupertinoIcons.flag),
+                                        SizedBox(width: 10,),
+                                        Text("3")
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -836,13 +764,13 @@ class _myblogsState extends State<myblogs> {
   }
   mybloggetter() async{
     final prefs=await SharedPreferences.getInstance();
-    String? uid=prefs.getString("uid");
+    String? uid=prefs.getString("id");
     // print("lksjflkjsdfljsd"+uid.toString());
     await myblogsfunc(uid.toString()).then((v){
     mybloglist=v;
-      setState(() {
+      mounted?setState(() {
         _loading=false;
-      });
+      }):null;
     });
 
   }
@@ -945,6 +873,7 @@ class _savedblogsState extends State<savedblogs> {
     );
   }
   savedblogfunc() async{
+    mysavedblogs.clear();
     await mysavedblogsprofile()
     .then((v){
       if(v!=null) {
@@ -963,11 +892,10 @@ class _savedblogsState extends State<savedblogs> {
 
   }
   @override
-  void initState() {
+  void initState(){
     savedblogfunc();
   }
 }
-
 
 class blogdetail extends StatefulWidget {
   final blogmodel blog;

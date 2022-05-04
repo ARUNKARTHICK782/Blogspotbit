@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:blogspotbit/main.dart';
+import 'package:blogspotbit/responsive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +10,11 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
+
+import 'block_picker.dart';
+import 'screens/desktopcontainer.dart';
 
 var verify, reg_email, reg_department, reg_name;
 var user, token, otpjson;
@@ -85,9 +92,9 @@ verifyotp(String? key, int? otp, String? check) async {
   return finaldetails;
 }
 
-adduser(String? name, String? email, String? password) async {
-
-  var b={"name": name,"email":email,"password":password};
+adduser(String? name, String? email, String? password,String colors) async {
+  var prefs=await SharedPreferences.getInstance();
+  var b={"name": name,"email":email,"password":password,"profile_color":colors};
   print(b);
   var res=await http.post(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/add/8979"),
@@ -98,6 +105,7 @@ adduser(String? name, String? email, String? password) async {
   );
   print(res.body);
   token = res.headers['x-auth-token'];
+  await prefs.setString("token", token);
   return res.body;
 }
 
@@ -168,7 +176,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     PageController pc=PageController(initialPage: 1);
     return Scaffold(
-      appBar: AppBar(
+      appBar: (Responsive.isMobile(context))?AppBar(
         backgroundColor: Color(0xfff50f0f),
         title: Padding(
           padding: const EdgeInsets.only(left:10.0),
@@ -183,61 +191,72 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text("Help",style:TextStyle(color: Color(0xfff50f0f))),
               style: ElevatedButton.styleFrom(primary: Colors.white),
             ),
-          )
+          ),
         ],
-      ),
-      body: Center(
-        child:  Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image(image: AssetImage("images/FrontBanner.png")),
+      ):PreferredSize(preferredSize: Size(0,0), child: Container(color:Colors.red),),
+      body: SingleChildScrollView(
+        child: Center(
+          child: (Responsive.isMobile(context))?Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image(image: AssetImage("images/FrontBanner.png")),
+              Padding(
+                padding: const EdgeInsets.only(top: 75.0),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    setState(() {
+                      Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
+                    });
 
-            Padding(
-              padding: const EdgeInsets.only(top: 75.0),
-              child: ElevatedButton(
-                onPressed: () async {
-                  setState(() {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                    );
-                  });
+                    //showblogs();
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0,top: 8.0, bottom: 8.0),
+                        child: Icon(Icons.login, color: Color(0xfff50f0f),size: 35,),
+                      ),
+                      Text("LOGIN",style: TextStyle(color: Color(0xfff50f0f)),),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(primary: Colors.white,),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top:47.5),
+                child: ElevatedButton(
+                  onPressed: () async {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPage()));
+                  },
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0,top: 8.0, bottom: 8.0),
+                        child: Icon(Icons.app_registration, color: Color(0xfff50f0f),size: 35,),
+                      ),
+                      Text("REGISTER",style: TextStyle(color: Color(0xfff50f0f)),),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(primary: Colors.white,),
+                ),
+              ),
 
-                  //showblogs();
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0,top: 8.0, bottom: 8.0),
-                      child: Icon(Icons.login, color: Color(0xfff50f0f),size: 35,),
-                    ),
-                    Text("LOGIN",style: TextStyle(color: Color(0xfff50f0f)),),
-                  ],
-                ),
-                style: ElevatedButton.styleFrom(primary: Colors.white,),
-              ),
+            ],
+          ):Padding(
+            padding: const EdgeInsets.only(top: 100),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Image(image: AssetImage("images/FrontBanner.png")),
+                desktopcontainer()
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.only(top:47.5),
-              child: ElevatedButton(
-                onPressed: () async {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterPage()));
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8.0,top: 8.0, bottom: 8.0),
-                      child: Icon(Icons.app_registration, color: Color(0xfff50f0f),size: 35,),
-                    ),
-                    Text("REGISTER",style: TextStyle(color: Color(0xfff50f0f)),),
-                  ],
-                ),
-                style: ElevatedButton.styleFrom(primary: Colors.white,),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -260,6 +279,12 @@ class _LoginPageState extends State<LoginPage> {
   bool passworderror=false, password_visible = true;
   int len=0;
   String temp="", token="";
+  Color currentColor = Colors.amber;
+  List<Color> currentColors = [Colors.yellow, Colors.green];
+  List<Color> colorHistory = [];
+
+  void changeColor(Color color) => setState(() => currentColor = color);
+  void changeColors(List<Color> colors) => setState(() => currentColors = colors);
 
   @override
   void dispose() {
@@ -296,6 +321,48 @@ class _LoginPageState extends State<LoginPage> {
             padding: const EdgeInsets.only(top: 35.0),
             child: Column(
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Text("")),
+                    Expanded(
+                      flex:5,
+                      child: Container(
+                        child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 7,
+                                  child: Container(
+                                    child: GestureDetector(
+                                      child: ElevatedButton(
+                                        child:Text("CLICK"),
+                                        onPressed: (){
+                                          print("tapperd");
+                                          Navigator.push(context,MaterialPageRoute(builder: (context)=>BlockColorPickerExample(
+                                            pickerColor: currentColor,
+                                            onColorChanged: changeColor,
+                                            pickerColors: currentColors,
+                                            onColorsChanged: changeColors,
+                                            colorHistory: colorHistory,
+                                          )));
+
+                                        }),
+                                      )
+                                  ),
+                                ),
+                                // Expanded(flex:3,child: Container(width: double.infinity,)),
+
+                              ],
+                            )),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 1,
+                        child: Text("")),
+                  ],
+                ),
                 Row(
                   children: [
                     Expanded(
@@ -441,6 +508,8 @@ class _LoginPageState extends State<LoginPage> {
                   }, child: Text("LOGIN")),
                 ),
                 Image(image: AssetImage("images/LoginBanner.png")),
+
+
               ],),
           ),
         ),
@@ -473,6 +542,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool check=false, check2 = true;
   String temp="", token="";
   var decodeotp;
+  Color colors=Colors.black;
 
 
   @override
@@ -689,6 +759,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     if(otp.text.length == 0) return;
 
                     if(!rotperror ){
+                      print(_min.toString()+"sec : "+_sec.toString());
                       await verifyotp(otpjson['Details'], int.parse(otp.text), username.text).then((v)=> {
 
                       // print(verify)
@@ -733,6 +804,8 @@ class _OTPVerifiedState extends State<OTPVerified> {
   var password = new TextEditingController();
   var mail = new TextEditingController();
   bool check_password = false, password_visible = true;
+  Color colors=Colors.blue;
+
 
   @override
     void dispose() {
@@ -788,6 +861,86 @@ class _OTPVerifiedState extends State<OTPVerified> {
                       child: Text("")),
                 ],
               ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: Text("")),
+                Expanded(
+                  flex:5,
+                  child: Container(
+                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 7,
+                              child: CircleAvatar(
+                                child: Text(username.text.substring(0)[0],style: TextStyle(fontSize: 50),),
+                                radius: 40,
+                                backgroundColor: colors,
+                              ),
+                            ),
+                            // Expanded(flex:3,child: Container(width: double.infinity,)),
+                          ],
+                        )),
+                  ),
+                ),
+                Expanded(
+                    flex: 1,
+                    child: Text("")),
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                    flex: 1,
+                    child: Text("")),
+                Expanded(
+                  flex:5,
+                  child: Container(
+                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              flex: 7,
+                              child: TextButton(
+                                  onPressed: (){
+                                    showDialog(context: context, builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: MaterialColorPicker(
+                                            colors: [
+                                              Colors.red,
+                                              Colors.yellow,
+                                              Colors.blue,
+                                              Colors.pink,
+                                              Colors.green
+                                            ],
+
+                                            onColorChange: (Color color) {
+                                              setState(() {
+                                                colors = color;
+                                                print(colors.toString().substring(6,16));
+                                              });
+                                              // Handle color changes
+                                            },
+
+                                            selectedColor: colors
+                                        ),
+                                      );
+                                    });
+                                  }
+                                  , child: Text("Choose...")),
+                            ),
+                            // Expanded(flex:3,child: Container(width: double.infinity,)),
+                          ],
+                        )),
+                  ),
+                ),
+                Expanded(
+                    flex: 1,
+                    child: Text("")),
+              ],
             ),
             Row(
               children: [
@@ -1016,7 +1169,8 @@ class _OTPVerifiedState extends State<OTPVerified> {
                 if(password.text.length == 0 ) return;
 
                 if(!check_password){
-                  await adduser(username.text, mail.text, password.text).then((user){
+                  print(colors.toString());
+                  await adduser(username.text, mail.text, password.text,colors.toString().substring(6,16)).then((user){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>home()));
                   });
                 }
