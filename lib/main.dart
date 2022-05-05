@@ -2,8 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
-
-import 'package:blogspotbit/apihandler.dart';
+import 'package:blogspotbit/colors/colors.dart';
+import 'package:blogspotbit/screens/splashscreen.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:blogspotbit/blogmodel.dart';
 import 'package:blogspotbit/main.dart';
 import 'package:blogspotbit/share.dart';
@@ -21,12 +22,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
+import 'Components/styles.dart';
 import 'bala.dart';
+import 'apihandler.dart';
 import 'googleauth.dart';
 import 'screens/detailedblog.dart';
 // bool auth=false;
 String token="";
-
 void main() async
 {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,14 +58,25 @@ void main() async
     routes: {
       './blogdetail':(context)=>blogdetail(new blogmodel.empty(),0),
       './myapp':(context)=>MyApp(),
-      './myblogs':(context)=>myblogs()
+      './myblogs':(context)=>myblogs(),
     },
     theme: ThemeData(
       fontFamily: 'Merriweather',
       scaffoldBackgroundColor:  Color(0xfffaeeeb),
     ),
-    home:finalloginpage(), //(auth)?home():  (alreadylogged)?home():
+    home:splashscreen(), //(auth)?home():  (alreadylogged)?home():
   ));
+}
+
+enum Share {
+  facebook,
+  twitter,
+  whatsapp,
+  whatsapp_personal,
+  whatsapp_business,
+  share_system,
+  share_instagram,
+  share_telegram
 }
 
 class MyApp extends StatefulWidget {
@@ -141,12 +154,16 @@ class _addblogState extends State<addblog> {
                                       }
 
                                   },
+                                  cursorColor: Color(0xfff50f0f),
                                   controller: blogtitlecont,
                                   decoration: InputDecoration(
-                                    focusColor: Colors.red,
+                                    focusColor: Color(0xfff50f0f),
                                     // focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                                       errorText: titleError?"More than 60":null,
                                       border: UnderlineInputBorder(),
+                                    focusedBorder: textfieldborder(),
+
+                                    labelStyle: textfieldlabel(),
                                       labelText: 'Title',
                                   ),
                                 ),
@@ -158,7 +175,7 @@ class _addblogState extends State<addblog> {
                               child: SizedBox(
                                 height: 32.5,
                                 child: CircularProgressIndicator(
-                                  color: (temp.length>60)?Colors.red:Colors.blue,
+                                  color: (temp.length>60)?tertiary():Colors.blue,
                                   value:(temp.length/60 *100)/100,
                                 ),
                               ),
@@ -200,10 +217,14 @@ class _addblogState extends State<addblog> {
                             });
                           },
                           maxLines: 20,
+                          cursorColor: Color(0xfff50f0f),
                           decoration: InputDecoration(
-                            focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
                               errorText: contentvalidate?"Content should not be more than 1500 characters":null,
                               border: OutlineInputBorder(),
+                              focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color:Color(0xff334f7f), width: 2)
+                              ),
+                              labelStyle: textfieldlabel(),
                               hintText: 'Content'
                           ),
                         )),
@@ -255,11 +276,12 @@ class _homeState extends State<home> {
   List<blogmodel> blogs=[];
   List<int> mylikeslist=[];
   List<int> mybookmarkslist=[];
+  List<int> myreportedblogs=[];
   bool _loading=true;
   bool templike=false;
   blogfunc() async{
     var response=await showblogs();
-    if(response == "No Blogs Found"){
+    if(response.toString() == "No Blogs Found"){
       print("NO BLOGS FOUND");
     }
     else{
@@ -271,11 +293,19 @@ class _homeState extends State<home> {
 
     });
   }
-  updateblog() async {
-    mylikeslist=await mylikes();
+
+
+updateblog() async {
+  var meres=await mefunc();
+  mylikeslist=await mylikes();
     mybookmarkslist=await mybookmarks();
+    myreportedblogs=meres['reported'].cast<int>();
+    print("my reported blogs"+myreportedblogs.toString());
     print("type of mblist");
+    print(meres);
     print(mybookmarkslist.runtimeType);
+
+
     setState(() {
         _loading=false;
     });
@@ -290,6 +320,7 @@ class _homeState extends State<home> {
 
   @override
   void initState() {
+    _loading=true;
     blogfunc();
     updateblog();
     mefunc();
@@ -316,7 +347,143 @@ class _homeState extends State<home> {
           ],),
         backgroundColor: Color(0xfff50f0f),
       ),
-      body:(_loading)?Center(child: CircularProgressIndicator()): Screenshot(
+      body:(_loading)?Center(child: SizedBox(
+        child: Column(
+          children: [
+            Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(5),
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Shimmer.fromColors(
+                                baseColor: Colors.white,
+                                highlightColor: Colors.grey,
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex:6 ,
+                                      child: Container(
+                                        color:secondary(),
+                                        height: 30,
+                                      )
+                                    ),
+                                    Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined,color: Colors.grey,),onPressed: (){},))
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              thickness: 2,
+                            ),
+                            Expanded(
+                              flex:8,
+                              child: Shimmer.fromColors(
+                                baseColor: Colors.white,
+                                highlightColor: Colors.grey,
+                                child: ListView(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  children: [
+                                    Text(" ",
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 15,
+                                      style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            //Spacer(),
+                            Shimmer.fromColors(
+                              baseColor: Colors.white,
+                              highlightColor: Colors.grey,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 4,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Expanded(flex:1,child: CircleAvatar(
+                                          backgroundColor: Colors.grey,
+                                          child: Text(" ",
+                                            style: TextStyle(color: Colors.white,fontSize: 22.5),
+                                          ),
+                                          // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
+                                        )),
+                                        Expanded(
+                                          flex:3,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(" ",overflow: TextOverflow.ellipsis,),
+                                              SizedBox(height: 5,),
+                                              Text(
+                                                "Published On: " ,
+                                                style: TextStyle(fontSize: 10),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 3,
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        IconButton(onPressed: () async{
+                                          scrncont.capture().then((image) async {
+                                            await onButtonTap(Share.whatsapp,image!);
+                                            //Capture Done
+                                            setState(() {
+                                              _imgfile = image;
+                                            });
+                                          }).catchError((onError) {
+                                            print(onError);
+                                          });
+
+                                        }, icon: Icon(Icons.share)),
+                                        Column(
+                                          children: [
+                                           IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
+                                              setState(() {
+                                                templike=!templike;
+                                              });
+                                                                                          },),
+                                            Text(" ",style: TextStyle(fontSize: 10),)
+                                          ],
+                                        ),
+                                        IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
+
+                                        },),
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                )),
+          ],
+        ),
+      ),): Screenshot(
         controller: scrncont,
         child: GestureDetector(
           child: SizedBox(
@@ -339,21 +506,36 @@ class _homeState extends State<home> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        flex: 2,
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              flex:1 ,
-                                              child: Text(blogs.elementAt(index).title,
-                                                style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
-                                              ),
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            flex:6 ,
+                                            child: Text(blogs.elementAt(index).title,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 3,
+                                              style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
                                             ),
-                                            Expanded(flex:2,child: Container(width: double.infinity,),),
-                                            Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){},))
-                                          ],
-                                        ),
+                                          ),
+                                          Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
+                                            showDialog(context: context, builder: (BuildContext context){
+                                              return AlertDialog(
+                                                content: Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
+                                                actions: [
+                                                  TextButton(onPressed: () async{
+                                                    await report(blogs.elementAt(index).blogid).then((v){
+                                                      initState();
+                                                      Navigator.of(context).pop();
+                                                    });
+                                                  }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
+                                                  TextButton(onPressed: (){
+                                                    Navigator.of(context).pop();
+                                                  }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
+                                                ],
+                                              );
+                                            });
+                                          },))
+                                        ],
                                       ),
                                       Divider(
                                         thickness: 2,
@@ -362,7 +544,7 @@ class _homeState extends State<home> {
                                         flex:8,
                                         child: ListView(
                                           physics: NeverScrollableScrollPhysics(),
-                                            children: [
+                                          children: [
                                             Text(blogs.elementAt(index).content,
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 15,
@@ -372,7 +554,7 @@ class _homeState extends State<home> {
                                               onPressed: (){
                                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
                                               },
-                                              child: Text("Read More"),
+                                              child: Text("Read More", style: TextStyle(color: secondary()),),
                                             ):Text(""),
                                           ],
                                         ),
@@ -386,6 +568,10 @@ class _homeState extends State<home> {
                                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                               children: [
                                                 Expanded(flex:1,child: CircleAvatar(
+                                                  backgroundColor: Color(int.parse(blogs.elementAt(index).authorurl)),
+                                                  child: Text(blogs.elementAt(index).authorname[0],
+                                                    style: TextStyle(color: Colors.white,fontSize: 22.5),
+                                                  ),
                                                   // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
                                                 )),
                                                 Expanded(
@@ -394,16 +580,16 @@ class _homeState extends State<home> {
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
                                                       Text(blogs.elementAt(index).authorname,overflow: TextOverflow.ellipsis,),
-                                                    SizedBox(height: 5,),
-                                                  Text(
-                                                    "Published On: " +
-                                                        blogs
-                                                            .elementAt(index)
-                                                            .pubdate
-                                                            .substring(0, 10),
-                                                    style: TextStyle(fontSize: 10),
-                                                  )
-                                              ],
+                                                      SizedBox(height: 5,),
+                                                      Text(
+                                                        "Published On: " +
+                                                            blogs
+                                                                .elementAt(index)
+                                                                .pubdate
+                                                                .substring(0, 10),
+                                                        style: TextStyle(fontSize: 10),
+                                                      )
+                                                    ],
                                                   ),
                                                 ),
                                               ],
@@ -429,11 +615,8 @@ class _homeState extends State<home> {
                                                 }, icon: Icon(Icons.share)),
                                                 Column(
                                                   children: [
-                                                    (mylikeslist.contains(blogs.elementAt(index).blogid) || templike)?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Colors.red,),onPressed: () async {
-                                                      setState(() {
-                                                        templike=!templike;
-                                                      });
-                                                      await removelike(blogs.elementAt(index).blogid);
+                                                    (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),onPressed: () async {
+                                                      // await removelike(blogs.elementAt(index).blogid);
                                                       await removefromMylikes(blogs.elementAt(index).blogid).then((v){
                                                         setState(() {
                                                           initState();
@@ -446,9 +629,8 @@ class _homeState extends State<home> {
                                                       // });
                                                     },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
                                                       setState(() {
-                                                        templike=!templike;
                                                       });
-                                                      await addlike(blogs.elementAt(index).blogid);
+                                                      // await addlike(blogs.elementAt(index).blogid);
                                                       await addtomylikes(blogs.elementAt(index).blogid).then((v){
                                                         setState(() {
                                                           initState();
@@ -459,16 +641,16 @@ class _homeState extends State<home> {
                                                     Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
                                                   ],
                                                 ),
-                                                (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: Color(0xff4f5d75),onPressed: () async{
+                                                (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: tertiary(),onPressed: () async{
                                                   await removefromMybookmarks(blogs.elementAt(index).blogid);
                                                   setState(() {
-                                                        initState();
-                                                      });
+                                                    initState();
+                                                  });
                                                 },):IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
                                                   await addtomybookmarks(blogs.elementAt(index).blogid);
                                                   setState(() {
-                                                        initState();
-                                                      });
+                                                    initState();
+                                                  });
                                                 },),
                                               ],
                                             ),
@@ -506,9 +688,10 @@ class _homeState extends State<home> {
             child: FittedBox(
               child: FloatingActionButton(
                 onPressed: () async {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>addblog())).then((value) =>
+                Navigator.push(context, MaterialPageRoute(builder: (context)=>addblog())).then((value)
                 {
-                  initState()
+                  print("after add blog");
+                  initState();
                 });
                 // Obtain shared preferences.
               },
@@ -554,7 +737,7 @@ class _profileState extends State<profile> {
             Container(width: double.infinity,),
             CircleAvatar(
               radius: 50,
-              child: Text(disname.toString().substring(0,1),style: TextStyle(fontSize: 50),),
+              child: Text(disname.toString().substring(0,1),style: TextStyle(fontSize: 50,color: Colors.white),),
               backgroundColor: Color(int.parse(profilecolor.toString())),
             ),
             SizedBox(height: 20),
@@ -614,7 +797,7 @@ class _profileState extends State<profile> {
                                 //await deleteme();
                                 final prefs=await SharedPreferences.getInstance();
                                 await prefs.remove("token");
-                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>finalloginpage()), (route) => false);
+                                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
                               }, child: Text("YES")),
                               TextButton(onPressed: (){
                                 Navigator.of(context).pop();
@@ -665,7 +848,7 @@ class _myblogsState extends State<myblogs> {
       appBar: AppBar(
         backgroundColor: Color(0xfff50f0f),
       ),
-      body:(_loading)?Center(child: CircularProgressIndicator()):(mybloglist.isNotEmpty)?
+      body:(_loading)?Center(child: CircularProgressIndicator(color: tertiary(),)):(mybloglist.isNotEmpty)?
       SingleChildScrollView(
         child:Column(
           children: [
@@ -699,7 +882,7 @@ class _myblogsState extends State<myblogs> {
                                   children: [
                                     Row(
                                       children: [
-                                        Icon(CupertinoIcons.heart_fill,color: Colors.red,),
+                                        Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),
                                         SizedBox(width: 10,),
                                         Text(mybloglist.elementAt(index).likes.toString())
                                       ],
@@ -711,7 +894,7 @@ class _myblogsState extends State<myblogs> {
                                       children: [
                                         Icon(CupertinoIcons.flag),
                                         SizedBox(width: 10,),
-                                        Text("3")
+                                        Text(mybloglist.elementAt(index).report.toString())
                                       ],
                                     ),
                                   ],
@@ -740,15 +923,18 @@ class _myblogsState extends State<myblogs> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Text("You have not posted any Blogs"),
+                    SizedBox(
+                      height: 10,
+                    ),
                     GestureDetector(
                       child: Card(
-                        color: Colors.greenAccent,
+                        color: primary(),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text("Add a Blog"),
+                                child: Text("Add a Blog",style: TextStyle(color: secondary()),),
                               ),
                             ],
                           )),
@@ -797,7 +983,7 @@ class _savedblogsState extends State<savedblogs> {
         appBar: AppBar(
           backgroundColor: Color(0xfff50f0f),
         ),
-        body:(_loading)?Center(child: CircularProgressIndicator()):(banner!="No Saved blogs")?
+        body:(_loading)?Center(child: CircularProgressIndicator(color: tertiary(),)):(banner!="No Saved blogs")?
         SingleChildScrollView(
             child:Column(
               children: [
@@ -816,19 +1002,39 @@ class _savedblogsState extends State<savedblogs> {
                               child: Row(
                                 children: [
                                   Expanded(
-                                    flex:4,
+                                    flex:5,
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.all(10),
-                                          child: Text(mysavedblogs.elementAt(index).title,style: TextStyle(fontSize: 20),),
+                                          child: Row(
+                                            children: [
+                                              CircleAvatar(
+                                                radius: 20,
+                                                backgroundColor: Color(int.parse(mysavedblogs.elementAt(index).authorurl)),
+                                                child: Text(mysavedblogs.elementAt(index).authorname[0],style: TextStyle(color: Colors.white,fontSize: 22.5),),
+                                              ),
+                                              Expanded(
+
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(left: 15),
+                                                  child: Text(
+                                                    mysavedblogs.elementAt(index).title,
+                                                    style: TextStyle(fontSize: 20),
+                                                    maxLines: 3,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  Expanded(flex:1,child: Container(width: double.infinity,),),
+
                                   Expanded(flex:1,child:IconButton(icon:Icon(Icons.clear),onPressed: (){
                                     showDialog(context: context, builder: (BuildContext context){
                                       return AlertDialog(
@@ -959,7 +1165,7 @@ class _blogdetailState extends State<blogdetail> {
               borderRadius: BorderRadius.circular(10),
               child: Container(
                 height: 60,
-                color: Colors.red,
+                color: Color(0xfff50f0f),
                 child: IconButton(
                   icon:Icon(Icons.delete,color: Colors.white,),
                   onPressed: () async{

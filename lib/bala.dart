@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 
+import 'Components/styles.dart';
 import 'block_picker.dart';
 import 'screens/desktopcontainer.dart';
 
@@ -23,16 +24,17 @@ void _launchURL() async {
   if (!await launch(_url)) throw 'Could not launch $_url';
 }
 
-void toast(message) {
+toast(message) {
   Fluttertoast.showToast(
       msg: message,
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.CENTER,
       timeInSecForIosWeb: 2,
-      backgroundColor: Colors.red,
+      backgroundColor: Color(0xfff50f0f),
       textColor: Colors.white,
       fontSize: 16.0
   );
+  return 1;
 }
 
 gettoken(String? email, String? password) async {
@@ -109,40 +111,8 @@ adduser(String? name, String? email, String? password,String colors) async {
   return res.body;
 }
 
-
-void main() {
-  runApp(const finalloginpage());
-}
-
-class finalloginpage extends StatelessWidget {
-  const finalloginpage({Key? key}) : super(key: key);
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      // home: const OTPVerified(),
-    );
-  }
-}
-
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key,}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -152,8 +122,6 @@ class MyHomePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
-  final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -193,13 +161,16 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ],
-      ):PreferredSize(preferredSize: Size(0,0), child: Container(color:Colors.red),),
+      ):PreferredSize(preferredSize: Size(0,0), child: Container(color:Color(0xfff50f0f)),),
       body: SingleChildScrollView(
         child: Center(
           child: (Responsive.isMobile(context))?Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image(image: AssetImage("images/FrontBanner.png")),
+              SizedBox(
+                height: 33.5,
+              ),
+              Hero(tag: "image",child: Image(image: AssetImage("images/FrontBanner.png"))),
               Padding(
                 padding: const EdgeInsets.only(top: 75.0),
                 child: ElevatedButton(
@@ -335,48 +306,6 @@ class _LoginPageState extends State<LoginPage> {
                                 Expanded(
                                   flex: 7,
                                   child: Container(
-                                    child: GestureDetector(
-                                      child: ElevatedButton(
-                                        child:Text("CLICK"),
-                                        onPressed: (){
-                                          print("tapperd");
-                                          Navigator.push(context,MaterialPageRoute(builder: (context)=>BlockColorPickerExample(
-                                            pickerColor: currentColor,
-                                            onColorChanged: changeColor,
-                                            pickerColors: currentColors,
-                                            onColorsChanged: changeColors,
-                                            colorHistory: colorHistory,
-                                          )));
-
-                                        }),
-                                      )
-                                  ),
-                                ),
-                                // Expanded(flex:3,child: Container(width: double.infinity,)),
-
-                              ],
-                            )),
-                      ),
-                    ),
-                    Expanded(
-                        flex: 1,
-                        child: Text("")),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                        flex: 1,
-                        child: Text("")),
-                    Expanded(
-                      flex:5,
-                      child: Container(
-                        child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 7,
-                                  child: Container(
                                     child: TextField(
                                       inputFormatters:[FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 .]'))],
                                       onChanged: (s){
@@ -397,11 +326,18 @@ class _LoginPageState extends State<LoginPage> {
                                         // }
 
                                       },
-
+                                      cursorColor:Color(0xfff50f0f),
                                       controller: username,
                                       decoration: InputDecoration(
                                         border: UnderlineInputBorder(),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color:Color(0xff334f7f), width: 2)
+                                        ),
                                         labelText: 'Email',
+                                        labelStyle: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xff334f7f)
+                                        ),
                                         suffixText: '@bitsathy.ac.in'
                                       ),
                                     ),
@@ -452,6 +388,7 @@ class _LoginPageState extends State<LoginPage> {
 
                                       },
                                       controller: password,
+                                      cursorColor:Color(0xfff50f0f),
                                       decoration: InputDecoration(
                                         suffixIcon: IconButton(
                                             onPressed: (){
@@ -459,10 +396,16 @@ class _LoginPageState extends State<LoginPage> {
                                                 password_visible = !password_visible;
                                               });
                                             },
-                                            icon: password_visible?Icon(Icons.remove_red_eye, color: Colors.grey,):Icon(Icons.remove_red_eye)),
+                                            icon: password_visible?Icon(Icons.remove_red_eye, color: Colors.grey,):Icon(Icons.remove_red_eye,color: Color(0xfff50f0f),)),
                                         errorText: passworderror?"InValid Password":null,
                                         border: UnderlineInputBorder(),
+                                        focusedBorder: UnderlineInputBorder(
+                                            borderSide: BorderSide(color:Color(0xff334f7f), width: 2)                                        ),
                                         labelText: 'Password',
+                                        labelStyle: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff334f7f)
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -496,7 +439,7 @@ class _LoginPageState extends State<LoginPage> {
                         else{
                           var prefs= await SharedPreferences.getInstance();
                           prefs.setString("token", v).then((value) {
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>home()));
+                            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>home()),((route) => false));
                           });
                         }
                       });
@@ -505,7 +448,9 @@ class _LoginPageState extends State<LoginPage> {
                     else{
                       print("---Error---");
                     }
-                  }, child: Text("LOGIN")),
+                  }, child: Text("LOGIN"),
+                    style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
+                  ),
                 ),
                 Image(image: AssetImage("images/LoginBanner.png")),
 
@@ -561,6 +506,9 @@ class _RegisterPageState extends State<RegisterPage> {
         if (_min == 0 && _sec == 0) {
           setState(() {
             timer.cancel();
+            toast("Timed out try again").then((v){
+              Navigator.pop(context);
+            });
           });
         } else {
           if(_sec == 0){
@@ -647,10 +595,14 @@ class _RegisterPageState extends State<RegisterPage> {
 
                                       },
                                       controller: username,
+                                      cursorColor: Color(0XFFF50F0F),
                                       decoration: InputDecoration(
                                         errorText: rusernameerror?"Invalid Email":null,
                                         border: UnderlineInputBorder(),
-                                        labelText: 'Email',
+                                          labelText: 'Email',
+                                        focusedBorder: textfieldborder(),
+
+                                        labelStyle: textfieldlabel()
                                       ),
                                     ),
                                   ),
@@ -700,11 +652,15 @@ class _RegisterPageState extends State<RegisterPage> {
                                             }
 
                                           },
+                                          cursorColor: Color(0xfff50F0F),
                                           controller: otp,
+                                          keyboardType: TextInputType.number,
                                           decoration: InputDecoration(
                                             errorText: rotperror?"Valid Password":null,
                                             border: UnderlineInputBorder(),
+                                            focusedBorder: textfieldborder(),
                                             labelText: 'OTP',
+                                            labelStyle: textfieldlabel()
                                           ),
                                         ),
                                       ),
@@ -751,7 +707,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     else{
                       print("---Error---");
                     }
-                  }, child: Text("SEND OTP")),
+                  }, child: Text("SEND OTP"),
+                    style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
+                  ),
                 ):Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
@@ -778,7 +736,9 @@ class _RegisterPageState extends State<RegisterPage> {
                     else{
                       print("---Error---");
                     }
-                  }, child: Text("START REGISTERATION")),
+                  }, child: Text("START REGISTRATION"),
+                    style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
+                  ),
                 ),
 
                 Image(image: AssetImage("images/LoginBanner.png")),
@@ -876,7 +836,7 @@ class _OTPVerifiedState extends State<OTPVerified> {
                             Expanded(
                               flex: 7,
                               child: CircleAvatar(
-                                child: Text(username.text.substring(0)[0],style: TextStyle(fontSize: 50),),
+                                child: Text(username.text.substring(0)[0],style: TextStyle(fontSize: 50,color: Colors.white),),
                                 radius: 40,
                                 backgroundColor: colors,
                               ),
@@ -930,7 +890,7 @@ class _OTPVerifiedState extends State<OTPVerified> {
                                       );
                                     });
                                   }
-                                  , child: Text("Choose...")),
+                                  , child: Text("Choose...",style: TextStyle(color: Color(0xff334f7f)),)),
                             ),
                             // Expanded(flex:3,child: Container(width: double.infinity,)),
                           ],
@@ -976,11 +936,15 @@ class _OTPVerifiedState extends State<OTPVerified> {
                                     // }
 
                                   },
+                                  cursorColor: Color(0xfff50f0f),
                                   controller: username,
                                   decoration: InputDecoration(
                                     // errorText: usernameerror?"Invalid Email":null,
                                     border: UnderlineInputBorder(),
                                     labelText: 'Name',
+                                      focusedBorder: textfieldborder(),
+
+                                      labelStyle: textfieldlabel()
                                   ),
                                 ),
                               ),
@@ -1028,11 +992,15 @@ class _OTPVerifiedState extends State<OTPVerified> {
                                     // }
 
                                   },
+                                  cursorColor: Color(0xfff50f0f),
                                   controller: depart,
                                   decoration: InputDecoration(
                                     // errorText: usernameerror?"Invalid Email":null,
                                     border: UnderlineInputBorder(),
                                     labelText: 'Department',
+                                      focusedBorder: textfieldborder(),
+
+                                      labelStyle: textfieldlabel()
                                   ),
                                 ),
                               ),
@@ -1081,11 +1049,15 @@ class _OTPVerifiedState extends State<OTPVerified> {
                                     // }
 
                                   },
+                                  cursorColor: Color(0xfff50f0f),
                                   controller: mail,
                                   decoration: InputDecoration(
                                     // errorText: usernameerror?"Invalid Email":null,
                                     border: UnderlineInputBorder(),
                                     labelText: 'Email',
+                                      focusedBorder: textfieldborder(),
+
+                                      labelStyle: textfieldlabel()
                                   ),
                                 ),
                               ),
@@ -1135,18 +1107,22 @@ class _OTPVerifiedState extends State<OTPVerified> {
 
 
                                   },
+                                  cursorColor: Color(0xfff50f0f),
                                   controller: password,
                                   decoration: InputDecoration(
                                     errorText: check_password?"Invalid Password":null,
                                     border: UnderlineInputBorder(),
                                     labelText: 'Password',
+                                      focusedBorder: textfieldborder(),
+
+                                      labelStyle: textfieldlabel(),
                                     suffixIcon: IconButton(
                                         onPressed: (){
                                           setState(() {
                                             password_visible = !password_visible;
                                           });
                                         },
-                                        icon: password_visible?Icon(Icons.remove_red_eye, color: Colors.grey,):Icon(Icons.remove_red_eye))
+                                        icon: password_visible?Icon(Icons.remove_red_eye, color: Colors.grey,):Icon(Icons.remove_red_eye,color: Color(0xfff50f0f),))
                                   ),
 
                                 ),
@@ -1171,13 +1147,16 @@ class _OTPVerifiedState extends State<OTPVerified> {
                 if(!check_password){
                   print(colors.toString());
                   await adduser(username.text, mail.text, password.text,colors.toString().substring(6,16)).then((user){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>home()));
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>home()),(route)=>false);
                   });
                 }
                 else{
                   print("---Error---");
                 }
-              }, child: Text("REGISTER")),
+              }, child: Text("REGISTER"),
+                style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
+
+              ),
             )
           ],
         ),

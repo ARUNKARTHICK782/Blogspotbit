@@ -4,16 +4,6 @@ import 'package:blogspotbit/blogmodel.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Share {
-  facebook,
-  twitter,
-  whatsapp,
-  whatsapp_personal,
-  whatsapp_business,
-  share_system,
-  share_instagram,
-  share_telegram
-}
 
 gettoken(String? email,String? password) async {
   print("in get token"+email.toString());
@@ -49,6 +39,7 @@ mefunc() async{
   prefs.setString("email", me['email']);
   prefs.setString('name',me['name']);
   prefs.setString("profile_color", me["profile_color"]);
+  return me;
 }
 
 Future<void> addblogtodb(String title,String content,String userid) async {
@@ -69,7 +60,14 @@ Future<void> addblogtodb(String title,String content,String userid) async {
 }
 
 showblogs() async {
-  var res=await http.get(Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/show"));
+  var prefs=await SharedPreferences.getInstance();
+  String token=prefs.getString("token").toString();
+  var res=await http.get(
+      Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/show"),
+      headers: <String,String>{
+        'x-auth-token':token,
+      }
+  );
   print(res.statusCode);
   print(json.decode(res.body));
   var blogs=json.decode(res.body);
@@ -164,7 +162,7 @@ removefromMylikes(int blogid) async{
         'x-auth-token':ftoken.toString()
       }
   );
-  print(res.body);
+  print("removefromMylikes"+res.body.toString());
 }
 
 mylikes() async {
@@ -336,4 +334,17 @@ adduser(String? name, String? email, String? password, String? url) async {
   prefs.setString("token", token!);
   print("bala daw "+prefs.getString("token").toString());
   return res.body;
+}
+
+report(int blogid) async{
+  var prefs=await SharedPreferences.getInstance();
+  String t=await prefs.getString("token").toString();
+  var res=await http.put(
+    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/report/$blogid"),
+    headers:<String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'x-auth-token':t
+    },
+  );
+  print("in report function"+res.body.toString());
 }

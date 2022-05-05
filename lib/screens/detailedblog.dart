@@ -35,13 +35,13 @@ class _detailedblogState extends State<detailedblog> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(widget.blog.title,
-                            style: TextStyle(fontSize: 25,fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
                           ),
                           Divider(
                             thickness: 2,
                           ),
                           Text(widget.blog.content,
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
                           ),
                         ],
                       ),
@@ -55,14 +55,6 @@ class _detailedblogState extends State<detailedblog> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar:Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Icon(Icons.share),
-          Icon(Icons.bookmark_border_outlined),
-          Icon(CupertinoIcons.heart)
-        ],
       ),
     );
   }

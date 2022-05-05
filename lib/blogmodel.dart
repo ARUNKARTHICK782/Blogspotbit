@@ -6,9 +6,16 @@ class blogmodel{
   String _authorurl="";
   String _pubdate="";
   int? _likes;
-  blogmodel(this._blogid, this._title, this._content,this._pubdate,this._authorname,this._likes);
+  int? _report;
+  blogmodel(this._blogid, this._title, this._content,this._pubdate,this._authorname,this._authorurl,this._likes,this._report);
   blogmodel.empty();
 
+
+  int? get report => _report;
+
+  set report(int? value) {
+    _report = value;
+  }
 
   String get authorname => _authorname;
 
@@ -47,7 +54,7 @@ class blogmodel{
   }
 
   factory blogmodel.fromJson(Map<String, dynamic> json) {
-    return blogmodel(json["_id"], json["title"], json["content"], json["date"],json["author_id"]["name"], json["likes"]);
+    return blogmodel(json["_id"]!, json["title"]!, json["content"]!, json["date"]!,json["author_id"]["name"]!,json["author_id"]["profile_color"]!, json["likes"]!,json["report"]!);
   }
 
   String get authorurl => _authorurl;
