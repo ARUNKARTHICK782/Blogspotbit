@@ -320,6 +320,17 @@ updateblog() async {
 
   @override
   void initState() {
+    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+    //   FeatureDiscovery.discoverFeatures(context,
+    //       <String>[
+    //         'feature1',
+    //         'feature2',
+    //         'feature3',
+    //         'feature4',
+    //       ]
+    //   );
+    // });
+    // super.initState();
     _loading=true;
     blogfunc();
     updateblog();
@@ -373,9 +384,30 @@ updateblog() async {
                                   children: [
                                     Expanded(
                                       flex:6 ,
-                                      child: Container(
-                                        color:secondary(),
-                                        height: 30,
+                                      child: Column(
+
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+
+                                            height: 30,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10),
+                                              color:Colors.grey,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 13,
+                                          ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(10),
+                                              color:Colors.grey,
+                                            ),
+                                            height: 30,
+                                            width: 140,
+                                          ),
+                                        ],
                                       )
                                     ),
                                     Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined,color: Colors.grey,),onPressed: (){},))
@@ -394,11 +426,12 @@ updateblog() async {
                                 child: ListView(
                                   physics: NeverScrollableScrollPhysics(),
                                   children: [
-                                    Text(" ",
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 15,
-                                      style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
+                                    forshimmer(),
+                                    SizedBox(
+                                      height:30,
                                     ),
+                                    forshimmer(),
+
                                   ],
                                 ),
                               ),
@@ -704,6 +737,7 @@ updateblog() async {
   }
 }
 
+
 class profile extends StatefulWidget {
   const profile({Key? key}) : super(key: key);
 
@@ -876,7 +910,11 @@ class _myblogsState extends State<myblogs> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(mybloglist.elementAt(index).title,style: TextStyle(fontSize: 20),),
+                                Text(mybloglist.elementAt(index).title,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 3,
+                                  style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
+                                ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
@@ -1022,9 +1060,9 @@ class _savedblogsState extends State<savedblogs> {
                                                   padding: const EdgeInsets.only(left: 15),
                                                   child: Text(
                                                     mysavedblogs.elementAt(index).title,
-                                                    style: TextStyle(fontSize: 20),
-                                                    maxLines: 3,
                                                     overflow: TextOverflow.ellipsis,
+                                                    maxLines: 3,
+                                                    style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald'),
                                                   ),
                                                 ),
                                               ),
@@ -1136,13 +1174,13 @@ class _blogdetailState extends State<blogdetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(widget.blog.title,
-                            style: TextStyle(fontSize: 25,fontWeight: FontWeight.w500),
+                            style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald')
                           ),
                           Divider(
                             thickness: 2,
                           ),
                           Text(widget.blog.content,
-                            style: TextStyle(fontSize: 20),
+                              style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
                           ),
                         ],
                       ),

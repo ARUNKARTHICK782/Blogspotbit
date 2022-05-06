@@ -47,6 +47,7 @@ dependencies:
   flutter_material_color_picker: ^1.1.0+2
   readmore: ^2.1.0
   shimmer: ^2.0.0
+  feature_discovery: ^0.14.1
 
 
 #  sevr: ^1.0.4

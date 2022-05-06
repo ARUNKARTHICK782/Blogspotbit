@@ -24,8 +24,11 @@ class _splashscreenState extends State<splashscreen> with TickerProviderStateMix
           child: Hero(
 
             tag: "image",
-            child: Image(
-              image: AssetImage('images/FrontBanner.png'),
+            child: Container(
+              child: Image(
+                image: AssetImage('images/FrontBanner.png'),
+              ),
+
             ),
           ),
         ),

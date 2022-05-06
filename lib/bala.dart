@@ -170,7 +170,13 @@ class _MyHomePageState extends State<MyHomePage> {
               SizedBox(
                 height: 33.5,
               ),
-              Hero(tag: "image",child: Image(image: AssetImage("images/FrontBanner.png"))),
+              Hero(
+                  tag: "image",
+                  child: Container(
+                    child: Image(
+                        image: AssetImage("images/FrontBanner.png")),
+                  )
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 75.0),
                 child: ElevatedButton(
