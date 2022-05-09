@@ -27,8 +27,7 @@ void _launchURL() async {
 toast(message) {
   Fluttertoast.showToast(
       msg: message,
-      toastLength: Toast.LENGTH_SHORT,
-      gravity: ToastGravity.CENTER,
+      toastLength: Toast.LENGTH_LONG,
       timeInSecForIosWeb: 2,
       backgroundColor: Color(0xfff50f0f),
       textColor: Colors.white,
@@ -128,18 +127,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
   @override
   Widget build(BuildContext context) {
     PageController pc=PageController(initialPage: 1);
@@ -313,7 +301,7 @@ class _LoginPageState extends State<LoginPage> {
                                   flex: 7,
                                   child: Container(
                                     child: TextField(
-                                      inputFormatters:[FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 .]'))],
+                                      inputFormatters:[FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 . @]'))],
                                       onChanged: (s){
                                         setState(() {
                                           temp=s;
@@ -344,7 +332,6 @@ class _LoginPageState extends State<LoginPage> {
                                           fontWeight: FontWeight.bold,
                                           color: Color(0xff334f7f)
                                         ),
-                                        suffixText: '@bitsathy.ac.in'
                                       ),
                                     ),
                                   ),
@@ -435,7 +422,7 @@ class _LoginPageState extends State<LoginPage> {
                     }
 
                     if(!passworderror){
-                      await gettoken(username.text.trim()+"@bitsathy.ac.in", password.text.trim()).then((v) async {
+                      await gettoken(username.text.trim(), password.text.trim()).then((v) async {
                         if(v == "Invalid Email or Password"){
                             toast("Invalid Email or Password");
                         }
@@ -689,7 +676,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 check2?Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
-                    if(username.text.isEmpty ) return;
+                    if(username.text.isEmpty ) {
+                      toast("ENTER EMAIL");
+                      return;
+                    }
 
                     if(!rusernameerror){
                       await getotp(username.text.trim(), "VERIFICATION").then((v) => {
@@ -712,6 +702,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     }
                     else{
                       print("---Error---");
+                      toast("Only bitsathy accounts allowed");
+                      return;
                     }
                   }, child: Text("SEND OTP"),
                     style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),

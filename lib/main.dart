@@ -4,6 +4,9 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:blogspotbit/colors/colors.dart';
 import 'package:blogspotbit/screens/splashscreen.dart';
+import 'package:blogspotbit/temp/donateform.dart';
+import 'package:blogspotbit/temp/requestform.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:blogspotbit/blogmodel.dart';
 import 'package:blogspotbit/main.dart';
@@ -64,7 +67,7 @@ void main() async
       fontFamily: 'Merriweather',
       scaffoldBackgroundColor:  Color(0xfffaeeeb),
     ),
-    home:splashscreen(), //(auth)?home():  (alreadylogged)?home():
+    home:donateform(), //(auth)?home():  (alreadylogged)?home():
   ));
 }
 
@@ -175,7 +178,7 @@ class _addblogState extends State<addblog> {
                               child: SizedBox(
                                 height: 32.5,
                                 child: CircularProgressIndicator(
-                                  color: (temp.length>60)?tertiary():Colors.blue,
+                                  color: (temp.length>60)?Colors.red:tertiary(),
                                   value:(temp.length/60 *100)/100,
                                 ),
                               ),
@@ -224,7 +227,7 @@ class _addblogState extends State<addblog> {
                               focusedBorder: OutlineInputBorder(
                                   borderSide: BorderSide(color:Color(0xff334f7f), width: 2)
                               ),
-                              labelStyle: textfieldlabel(),
+                              hintStyle: textfieldlabel(),
                               hintText: 'Content'
                           ),
                         )),
@@ -320,17 +323,7 @@ updateblog() async {
 
   @override
   void initState() {
-    // WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
-    //   FeatureDiscovery.discoverFeatures(context,
-    //       <String>[
-    //         'feature1',
-    //         'feature2',
-    //         'feature3',
-    //         'feature4',
-    //       ]
-    //   );
-    // });
-    // super.initState();
+
     _loading=true;
     blogfunc();
     updateblog();
@@ -386,357 +379,379 @@ updateblog() async {
                                       flex:6 ,
                                       child: Column(
 
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-
-                                            height: 30,
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10),
-                                              color:Colors.grey,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 13,
-                                          ),
-                                          Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(10),
-                                              color:Colors.grey,
-                                            ),
-                                            height: 30,
-                                            width: 140,
-                                          ),
-                                        ],
-                                      )
-                                    ),
-                                    Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined,color: Colors.grey,),onPressed: (){},))
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Divider(
-                              thickness: 2,
-                            ),
-                            Expanded(
-                              flex:8,
-                              child: Shimmer.fromColors(
-                                baseColor: Colors.white,
-                                highlightColor: Colors.grey,
-                                child: ListView(
-                                  physics: NeverScrollableScrollPhysics(),
-                                  children: [
-                                    forshimmer(),
-                                    SizedBox(
-                                      height:30,
-                                    ),
-                                    forshimmer(),
-
-                                  ],
-                                ),
-                              ),
-                            ),
-                            //Spacer(),
-                            Shimmer.fromColors(
-                              baseColor: Colors.white,
-                              highlightColor: Colors.grey,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 4,
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Expanded(flex:1,child: CircleAvatar(
-                                          backgroundColor: Colors.grey,
-                                          child: Text(" ",
-                                            style: TextStyle(color: Colors.white,fontSize: 22.5),
-                                          ),
-                                          // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
-                                        )),
-                                        Expanded(
-                                          flex:3,
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(" ",overflow: TextOverflow.ellipsis,),
-                                              SizedBox(height: 5,),
-                                              Text(
-                                                "Published On: " ,
-                                                style: TextStyle(fontSize: 10),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        IconButton(onPressed: () async{
-                                          scrncont.capture().then((image) async {
-                                            await onButtonTap(Share.whatsapp,image!);
-                                            //Capture Done
-                                            setState(() {
-                                              _imgfile = image;
-                                            });
-                                          }).catchError((onError) {
-                                            print(onError);
-                                          });
-
-                                        }, icon: Icon(Icons.share)),
-                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                           IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
-                                              setState(() {
-                                                templike=!templike;
-                                              });
-                                                                                          },),
-                                            Text(" ",style: TextStyle(fontSize: 10),)
+                                            Container(
+
+                                              height: 30,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                color:Colors.grey,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 13,
+                                            ),
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(10),
+                                                color:Colors.grey,
+                                              ),
+                                              height: 30,
+                                              width: 140,
+                                            ),
                                           ],
-                                        ),
-                                        IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
-
-                                        },),
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                )),
-          ],
-        ),
-      ),): Screenshot(
-        controller: scrncont,
-        child: GestureDetector(
-          child: SizedBox(
-            child: PageView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: blogs.length,
-                itemBuilder: (BuildContext context,int index){
-                  return Column(
-                    children: [
-                      Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Card(
-                              color: Colors.white,
-                              elevation: 5,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Container(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            flex:6 ,
-                                            child: Text(blogs.elementAt(index).title,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 3,
-                                              style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
-                                            ),
-                                          ),
-                                          Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
-                                            showDialog(context: context, builder: (BuildContext context){
-                                              return AlertDialog(
-                                                content: Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
-                                                actions: [
-                                                  TextButton(onPressed: () async{
-                                                    await report(blogs.elementAt(index).blogid).then((v){
-                                                      initState();
-                                                      Navigator.of(context).pop();
-                                                    });
-                                                  }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
-                                                  TextButton(onPressed: (){
-                                                    Navigator.of(context).pop();
-                                                  }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
-                                                ],
-                                              );
-                                            });
-                                          },))
-                                        ],
+                                        )
                                       ),
-                                      Divider(
-                                        thickness: 2,
-                                      ),
-                                      Expanded(
-                                        flex:8,
-                                        child: ListView(
-                                          physics: NeverScrollableScrollPhysics(),
-                                          children: [
-                                            Text(blogs.elementAt(index).content,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 15,
-                                              style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
-                                            ),
-                                            (blogs.elementAt(index).content.length>900)?TextButton(
-                                              onPressed: (){
-                                                Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
-                                              },
-                                              child: Text("Read More", style: TextStyle(color: secondary()),),
-                                            ):Text(""),
-                                          ],
-                                        ),
-                                      ),
-                                      //Spacer(),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 4,
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Expanded(flex:1,child: CircleAvatar(
-                                                  backgroundColor: Color(int.parse(blogs.elementAt(index).authorurl)),
-                                                  child: Text(blogs.elementAt(index).authorname[0],
-                                                    style: TextStyle(color: Colors.white,fontSize: 22.5),
-                                                  ),
-                                                  // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
-                                                )),
-                                                Expanded(
-                                                  flex:3,
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Text(blogs.elementAt(index).authorname,overflow: TextOverflow.ellipsis,),
-                                                      SizedBox(height: 5,),
-                                                      Text(
-                                                        "Published On: " +
-                                                            blogs
-                                                                .elementAt(index)
-                                                                .pubdate
-                                                                .substring(0, 10),
-                                                        style: TextStyle(fontSize: 10),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                IconButton(onPressed: () async{
-                                                  scrncont.capture().then((image) async {
-                                                    await onButtonTap(Share.whatsapp,image!);
-                                                    //Capture Done
-                                                    setState(() {
-                                                      _imgfile = image;
-                                                    });
-                                                  }).catchError((onError) {
-                                                    print(onError);
-                                                  });
-
-                                                }, icon: Icon(Icons.share)),
-                                                Column(
-                                                  children: [
-                                                    (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),onPressed: () async {
-                                                      // await removelike(blogs.elementAt(index).blogid);
-                                                      await removefromMylikes(blogs.elementAt(index).blogid).then((v){
-                                                        setState(() {
-                                                          initState();
-                                                        });
-                                                      });
-                                                      // addlike(blogs.elementAt(index).blogid);
-                                                      // addtomylikes(FirebaseAuth.instance.currentUser?.email, blogs.elementAt(index).blogid);
-                                                      // setState(() {
-                                                      //   initState();
-                                                      // });
-                                                    },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
-                                                      setState(() {
-                                                      });
-                                                      // await addlike(blogs.elementAt(index).blogid);
-                                                      await addtomylikes(blogs.elementAt(index).blogid).then((v){
-                                                        setState(() {
-                                                          initState();
-                                                        });
-                                                      });
-
-                                                    },),
-                                                    Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
-                                                  ],
-                                                ),
-                                                (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: tertiary(),onPressed: () async{
-                                                  await removefromMybookmarks(blogs.elementAt(index).blogid);
-                                                  setState(() {
-                                                    initState();
-                                                  });
-                                                },):IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
-                                                  await addtomybookmarks(blogs.elementAt(index).blogid);
-                                                  setState(() {
-                                                    initState();
-                                                  });
-                                                },),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      )
+                                      Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined,color: Colors.grey,),onPressed: (){},))
                                     ],
                                   ),
                                 ),
                               ),
-                            ),
-                          )),
-                    ],
-                  );
-                }),
-          ),
-          onPanUpdate: (details) {
+                              Divider(
+                                thickness: 2,
+                              ),
+                              Expanded(
+                                flex:8,
+                                child: Shimmer.fromColors(
+                                  baseColor: Colors.white,
+                                  highlightColor: Colors.grey,
+                                  child: ListView(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    children: [
+                                      forshimmer(),
+                                      SizedBox(
+                                        height:30,
+                                      ),
+                                      forshimmer(),
 
-            // Swiping in left direction.
-            if (details.delta.dx > 0) {
-              Navigator.push(context,PageTransition(
-                type: PageTransitionType.leftToRight,
-                child: profile(),
-              ),);
-            }
-          },
-        ),
-      ),
-      bottomNavigationBar:Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            height: 65,
-            width: 65,
-            child: FittedBox(
-              child: FloatingActionButton(
-                onPressed: () async {
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>addblog())).then((value)
-                {
-                  print("after add blog");
-                  initState();
-                });
-                // Obtain shared preferences.
-              },
-              backgroundColor: Color(0xfff50f0f),
-                child: Icon(Icons.add),),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              //Spacer(),
+                              Shimmer.fromColors(
+                                baseColor: Colors.white,
+                                highlightColor: Colors.grey,
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Expanded(flex:1,child: CircleAvatar(
+                                            backgroundColor: Colors.grey,
+                                            child: Text(" ",
+                                              style: TextStyle(color: Colors.white,fontSize: 22.5),
+                                            ),
+                                            // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
+                                          )),
+                                          Expanded(
+                                            flex:3,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(" ",overflow: TextOverflow.ellipsis,),
+                                                SizedBox(height: 5,),
+                                                Text(
+                                                  "Published On: " ,
+                                                  style: TextStyle(fontSize: 10),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          IconButton(onPressed: () async{
+                                            scrncont.capture().then((image) async {
+                                              await onButtonTap(Share.whatsapp,image!);
+                                              //Capture Done
+                                              setState(() {
+                                                _imgfile = image;
+                                              });
+                                            }).catchError((onError) {
+                                              print(onError);
+                                            });
+
+                                          }, icon: Icon(Icons.share)),
+                                          Column(
+                                            children: [
+                                             IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
+                                                setState(() {
+                                                  templike=!templike;
+                                                });
+                                                                                            },),
+                                              Text(" ",style: TextStyle(fontSize: 10),)
+                                            ],
+                                          ),
+                                          IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
+
+                                          },),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  )),
+            ],
+          ),
+        ),): Screenshot(
+          controller: scrncont,
+          child: GestureDetector(
+            child: SizedBox(
+              child: PageView.builder(
+                  scrollDirection: Axis.vertical,
+                  itemCount: blogs.length,
+                  itemBuilder: (BuildContext context,int index){
+                    return Column(
+                      children: [
+                        Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(5),
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8),
+                                  child: Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              flex:6 ,
+                                              child: Text(blogs.elementAt(index).title,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 3,
+                                                style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
+                                              ),
+                                            ),
+                                            Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
+                                              showDialog(context: context, builder: (BuildContext context){
+                                                return AlertDialog(
+                                                  content: Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
+                                                  actions: [
+                                                    TextButton(onPressed: () async{
+                                                      await report(blogs.elementAt(index).blogid).then((v){
+                                                        initState();
+                                                        Navigator.of(context).pop();
+                                                      });
+                                                    }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
+                                                    TextButton(onPressed: (){
+                                                      Navigator.of(context).pop();
+                                                    }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
+                                                  ],
+                                                );
+                                              });
+                                            },))
+                                          ],
+                                        ),
+                                        Divider(
+                                          thickness: 2,
+                                        ),
+                                        Expanded(
+                                          flex:8,
+                                          child: ListView(
+                                            physics: NeverScrollableScrollPhysics(),
+                                            children: [
+                                              Text(blogs.elementAt(index).content,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 15,
+                                                style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
+                                              ),
+                                              (blogs.elementAt(index).content.length>900)?TextButton(
+                                                onPressed: (){
+                                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
+                                                },
+                                                child: Text("Read More", style: TextStyle(color: secondary()),),
+                                              ):Text(""),
+                                            ],
+                                          ),
+                                        ),
+                                        //Spacer(),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              flex: 4,
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                children: [
+                                                  Expanded(flex:1,child: CircleAvatar(
+                                                    backgroundColor: Color(int.parse(blogs.elementAt(index).authorurl)),
+                                                    child: Text(blogs.elementAt(index).authorname[0],
+                                                      style: TextStyle(color: Colors.white,fontSize: 22.5),
+                                                    ),
+                                                    // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
+                                                  )),
+                                                  Expanded(
+                                                    flex:3,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(blogs.elementAt(index).authorname,overflow: TextOverflow.ellipsis,),
+                                                        SizedBox(height: 5,),
+                                                        Text(
+                                                          "Published On: " +
+                                                              blogs
+                                                                  .elementAt(index)
+                                                                  .pubdate
+                                                                  .substring(0, 10),
+                                                          style: TextStyle(fontSize: 10),
+                                                        )
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                children: [
+                                                  IconButton(onPressed: () async{
+                                                    scrncont.capture().then((image) async {
+                                                      await onButtonTap(Share.whatsapp,image!);
+                                                      //Capture Done
+                                                      setState(() {
+                                                        _imgfile = image;
+                                                      });
+                                                    }).catchError((onError) {
+                                                      print(onError);
+                                                    });
+
+                                                  }, icon: Icon(Icons.share)),
+                                                  Column(
+                                                    children: [
+                                                      (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),onPressed: () async {
+                                                        await removefromMylikes(blogs.elementAt(index).blogid).then((v){
+                                                          setState(() {
+                                                            initState();
+                                                          });
+                                                        });
+                                                        // addlike(blogs.elementAt(index).blogid);
+                                                        // addtomylikes(FirebaseAuth.instance.currentUser?.email, blogs.elementAt(index).blogid);
+                                                        // setState(() {
+                                                        //   initState();
+                                                        // });
+                                                      },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
+                                                        setState(() {
+                                                        });
+                                                        // await addlike(blogs.elementAt(index).blogid);
+                                                        await addtomylikes(blogs.elementAt(index).blogid).then((v){
+                                                          setState(() {
+                                                            initState();
+                                                          });
+                                                        });
+
+                                                      },),
+                                                      Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
+                                                    ],
+                                                  ),
+                                                  (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: tertiary(),onPressed: () async{
+                                                    await removefromMybookmarks(blogs.elementAt(index).blogid);
+                                                    setState(() {
+                                                      initState();
+                                                    });
+                                                  },):IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
+                                                    await addtomybookmarks(blogs.elementAt(index).blogid);
+                                                    setState(() {
+                                                      initState();
+                                                    });
+                                                  },),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )),
+                      ],
+                    );
+                  }),
             ),
-          )
-        ],) ,
-    );
+            onPanUpdate: (details) {
+
+              // Swiping in left direction.
+              if (details.delta.dx > 0) {
+                Navigator.push(context,PageTransition(
+                  type: PageTransitionType.leftToRight,
+                  child: profile(),
+                ),);
+              }
+            },
+          ),
+        ),
+        bottomNavigationBar:Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              height: 65,
+              width: 65,
+              child: FittedBox(
+                child: FloatingActionButton(
+                  onPressed: () async {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>addblog())).then((value)
+                  {
+                    print("after add blog");
+                    initState();
+                  });
+                  // Obtain shared preferences.
+                },
+                backgroundColor: Color(0xfff50f0f),
+                  child: Icon(Icons.add),),
+              ),
+            )
+          ],) ,
+        // bottomNavigationBar: DescribedFeatureOverlay(
+        //   featureId: 'feature1',
+        //   targetColor: Colors.white,
+        //   textColor: Colors.black,
+        //   backgroundColor: Colors.red.shade100,
+        //   contentLocation: ContentLocation.trivial,
+        //   title: Text(
+        //     'This is Button',
+        //     style: TextStyle(fontSize: 20.0),
+        //   ),
+        //   pulseDuration: Duration(seconds: 1),
+        //   enablePulsingAnimation: true,
+        //   overflowMode: OverflowMode.extendBackground,
+        //   openDuration: Duration(seconds: 1),
+        //   description: Text('This is Button you can\n add more details heres'),
+        //   tapTarget: Icon(Icons.navigation),
+        //
+        //   child: BottomNavigationBar(items: [
+        //     BottomNavigationBarItem(label: "home", icon: Icon(Icons.home)),
+        //     BottomNavigationBarItem(
+        //         label: 'Notification',
+        //         icon: Icon(Icons.notifications_active)),
+        //   ]),
+        // ),
+      );
   }
 }
-
 
 class profile extends StatefulWidget {
   const profile({Key? key}) : super(key: key);
@@ -832,10 +847,10 @@ class _profileState extends State<profile> {
                                 final prefs=await SharedPreferences.getInstance();
                                 await prefs.remove("token");
                                 Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
-                              }, child: Text("YES")),
+                              }, child: Text("YES",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold))),
                               TextButton(onPressed: (){
                                 Navigator.of(context).pop();
-                              }, child: Text("NO"))
+                              }, child: Text("NO",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold)))
                             ],
                           );
                         });
@@ -1083,10 +1098,10 @@ class _savedblogsState extends State<savedblogs> {
                                            await removefromMybookmarks(mysavedblogs.elementAt(index).blogid).then((b){
                                              initState();
                                            });
-                                          }, child: Text("Yes")),
+                                          }, child: Text("Yes",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold))),
                                           TextButton(onPressed: (){
                                             Navigator.pop(context);
-                                          }, child: Text('No'))
+                                          }, child: Text('No',style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold)))
                                         ],
                                       );
                                     });
@@ -1137,6 +1152,9 @@ class _savedblogsState extends State<savedblogs> {
   }
   @override
   void initState(){
+    setState(() {
+      _loading=true;
+    });
     savedblogfunc();
   }
 }
@@ -1211,12 +1229,12 @@ class _blogdetailState extends State<blogdetail> {
                       return AlertDialog(
                         content: Text("Do you want to delete this blog"),
                         actions: [
-                          TextButton(child: Text("Yes"),onPressed: () async {
+                          TextButton(child: Text("Yes",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold)),onPressed: () async {
                             await deletemyblog(widget.blog.blogid).then((value){
                               Navigator.pop(context);
                             });
                           },),
-                          TextButton(child: Text("No"),onPressed: () async {
+                          TextButton(child: Text("No",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold)),onPressed: () async {
                               Navigator.pop(context);
                           },)
                         ],
