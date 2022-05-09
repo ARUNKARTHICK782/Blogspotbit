@@ -15,6 +15,7 @@ import 'package:flutter_material_color_picker/flutter_material_color_picker.dart
 
 import 'Components/styles.dart';
 import 'block_picker.dart';
+import 'colors/colors.dart';
 import 'screens/desktopcontainer.dart';
 
 var verify, reg_email, reg_department, reg_name;
@@ -29,11 +30,13 @@ toast(message) {
       msg: message,
       toastLength: Toast.LENGTH_LONG,
       timeInSecForIosWeb: 2,
+      gravity: ToastGravity.SNACKBAR,
       backgroundColor: Color(0xfff50f0f),
       textColor: Colors.white,
       fontSize: 16.0
   );
-  return 1;
+
+  return "true";
 }
 
 gettoken(String? email, String? password) async {
@@ -307,22 +310,23 @@ class _LoginPageState extends State<LoginPage> {
                                           temp=s;
                                         });
 
-                                        // if(s.contains("@bitsathy.ac.in")){
-                                        //
-                                        //   setState(() {
-                                        //     usernameerror=false;
-                                        //   });
-                                        // }
-                                        // else{
-                                        //   setState(() {
-                                        //     usernameerror=true;
-                                        //   });
-                                        // }
+                                        if(s.contains("@bitsathy.ac.in")){
+
+                                          setState(() {
+                                            usernameerror=false;
+                                          });
+                                        }
+                                        else{
+                                          setState(() {
+                                            usernameerror=true;
+                                          });
+                                        }
 
                                       },
                                       cursorColor:Color(0xfff50f0f),
                                       controller: username,
                                       decoration: InputDecoration(
+                                        errorText: usernameerror?"Invalid Email":null,
                                         border: UnderlineInputBorder(),
                                         focusedBorder: UnderlineInputBorder(
                                           borderSide: BorderSide(color:Color(0xff334f7f), width: 2)
@@ -368,7 +372,7 @@ class _LoginPageState extends State<LoginPage> {
                                           temp=s;
                                         });
 
-                                        if(s.length<20){
+                                        if(s.length<=12){
                                           setState(() {
                                             passworderror=false;
                                           });
@@ -418,10 +422,11 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
                     if(username.text.isEmpty || password.text.isEmpty){
+                      toast("Email and Password required");
                       return;
                     }
 
-                    if(!passworderror){
+                    if(!usernameerror && !passworderror){
                       await gettoken(username.text.trim(), password.text.trim()).then((v) async {
                         if(v == "Invalid Email or Password"){
                             toast("Invalid Email or Password");
@@ -439,6 +444,8 @@ class _LoginPageState extends State<LoginPage> {
 
                     }
                     else{
+                      if(usernameerror) return toast("Invalid Email");
+                      if(passworderror) return toast("Invalid Password");
                       print("---Error---");
                     }
                   }, child: Text("LOGIN"),
@@ -465,8 +472,8 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   Timer ?_timer;
-  int _min = 01;
-  int _sec = 59;
+  int _min = 00;
+  int _sec = 30;
   bool zero = false;
   var username=new TextEditingController();
   var password=new TextEditingController();
@@ -477,7 +484,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool rpassworderror=false;
   bool rotperror=false;
   int len=0;
-  bool check=false, check2 = true;
+  bool check=false, check2 = true, check3 = true;
   String temp="", token="";
   var decodeotp;
   Color colors=Colors.black;
@@ -499,9 +506,8 @@ class _RegisterPageState extends State<RegisterPage> {
         if (_min == 0 && _sec == 0) {
           setState(() {
             timer.cancel();
-            toast("Timed out try again").then((v){
-              Navigator.pop(context);
-            });
+            toast("Timed out try again");
+            Navigator.pop(context);
           });
         } else {
           if(_sec == 0){
@@ -570,31 +576,32 @@ class _RegisterPageState extends State<RegisterPage> {
                                   flex: 7,
                                   child: Container(
                                     child: TextField(
+                                      inputFormatters:[FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9 . @]'))],
                                       onChanged: (s){
                                         setState(() {
                                           temp=s;
                                         });
 
-                                        if(s.contains("@bitsathy.ac.in")){
-                                          setState(() {
-                                            rusernameerror=false;
-                                          });
-                                        }
-                                        else{
-                                          setState(() {
-                                           rusernameerror=true;
-                                          });
-                                        }
+                                        // if(s.contains("@bitsathy.ac.in")){
+                                        //   setState(() {
+                                        //     rusernameerror=false;
+                                        //   });
+                                        // }
+                                        // else{
+                                        //   setState(() {
+                                        //    rusernameerror=true;
+                                        //   });
+                                        // }
 
                                       },
                                       controller: username,
                                       cursorColor: Color(0XFFF50F0F),
                                       decoration: InputDecoration(
-                                        errorText: rusernameerror?"Invalid Email":null,
+                                        // errorText: rusernameerror?"Invalid Email":null,
                                         border: UnderlineInputBorder(),
                                           labelText: 'Email',
                                         focusedBorder: textfieldborder(),
-
+                                        suffixText: "@bitsathy.ac.in",
                                         labelStyle: textfieldlabel()
                                       ),
                                     ),
@@ -628,6 +635,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                       flex: 7,
                                       child: Container(
                                         child: TextField(
+
                                           onChanged: (s){
                                             setState(() {
                                               temp=s;
@@ -677,12 +685,12 @@ class _RegisterPageState extends State<RegisterPage> {
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
                     if(username.text.isEmpty ) {
-                      toast("ENTER EMAIL");
+                      toast("Email is required");
                       return;
                     }
 
                     if(!rusernameerror){
-                      await getotp(username.text.trim(), "VERIFICATION").then((v) => {
+                      await getotp(username.text.trim()+"@bitsathy.ac.in", "VERIFICATION").then((v) => {
 
                         if(v =='"email" must be a valid email'){
                           toast("Invalid Email")
@@ -716,19 +724,23 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     if(!rotperror ){
                       print(_min.toString()+"sec : "+_sec.toString());
-                      await verifyotp(otpjson['Details'], int.parse(otp.text), username.text).then((v)=> {
 
-                      // print(verify)
+                        await verifyotp(otpjson['Details'], int.parse(otp.text), username.text+"@bitsathy.ac.in").then((v) {
+
+                          // print(verify)
                           if(v == 'OTP NOT Matched'){
-                             toast('OTP NOT Matched')
+                            toast('OTP NOT Matched');
                           }
                           else if(v['Status'].toString() == 'Success'){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const OTPVerified(),))
+                            _timer?.cancel();
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const OTPVerified(),));
                           }
-                          else if(_min == 0 && _sec == 0){
-                            toast('Timed Out Try Again')
+                          else{
+
                           }
-                      });
+
+                        });
+
 
                     }
                     else{
@@ -761,8 +773,8 @@ class _OTPVerifiedState extends State<OTPVerified> {
   var depart = new TextEditingController();
   var password = new TextEditingController();
   var mail = new TextEditingController();
-  bool check_password = false, password_visible = true;
-  Color colors=Colors.blue;
+  bool check_password = false, password_visible = true, back_bool=false;
+  Color colors=Color(0xff0000FF);
 
 
   @override
@@ -782,383 +794,403 @@ class _OTPVerifiedState extends State<OTPVerified> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xfff50f0f),
-        title: Padding(
-          padding: const EdgeInsets.only(left:10.0),
-          child: Text("BLOGSPOTBIT"),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8,8,10,8),
-            child: ElevatedButton(onPressed: () => {
-              _launchURL()
-            },
-              child: Text("Help",style:TextStyle(color: Color(0xfff50f0f))),
-              style: ElevatedButton.styleFrom(primary: Colors.white),
-            ),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
+    return WillPopScope(
+      onWillPop: () async {
+        showDialog(context: context, builder: (BuildContext context){
+          return  AlertDialog(
+            content: Text("Do you want to exit?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
+            actions: [
+              TextButton(onPressed: () async{
+                  back_bool=true;
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MyHomePage()), (route) => false);
+
+              }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
+              TextButton(onPressed: (){
+                Navigator.of(context).pop();
+              }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
+            ],
+          );
+        });
+        return back_bool;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xfff50f0f),
+          title: Padding(
+            padding: const EdgeInsets.only(left:10.0),
+            child: Text("BLOGSPOTBIT"),
+          ),
+          actions: [
             Padding(
-              padding: const EdgeInsets.only(top:35.0),
-              child: Row(
+              padding: const EdgeInsets.fromLTRB(8,8,10,8),
+              child: ElevatedButton(onPressed: () => {
+                _launchURL()
+              },
+                child: Text("Help",style:TextStyle(color: Color(0xfff50f0f))),
+                style: ElevatedButton.styleFrom(primary: Colors.white),
+              ),
+            )
+          ],
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top:35.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                        flex: 1,
+                        child: Text("")),
+                    Center(
+                      child: Text("REGISTRATION", style: TextStyle(color: Color(0xfff50f0f), fontSize: 20),),
+                    ),
+                    Expanded(
+                        flex: 1,
+                        child: Text("")),
+                  ],
+                ),
+              ),
+              Row(
                 children: [
                   Expanded(
                       flex: 1,
                       child: Text("")),
-                  Center(
-                    child: Text("REGISTRATION", style: TextStyle(color: Color(0xfff50f0f), fontSize: 20),),
+                  Expanded(
+                    flex:5,
+                    child: Container(
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: CircleAvatar(
+                                  child: Text(username.text.substring(0)[0],style: TextStyle(fontSize: 50,color: Colors.white),),
+                                  radius: 40,
+                                  backgroundColor: colors,
+                                ),
+                              ),
+                              // Expanded(flex:3,child: Container(width: double.infinity,)),
+                            ],
+                          )),
+                    ),
                   ),
                   Expanded(
                       flex: 1,
                       child: Text("")),
                 ],
               ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-                Expanded(
-                  flex:5,
-                  child: Container(
-                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: CircleAvatar(
-                                child: Text(username.text.substring(0)[0],style: TextStyle(fontSize: 50,color: Colors.white),),
-                                radius: 40,
-                                backgroundColor: colors,
-                              ),
-                            ),
-                            // Expanded(flex:3,child: Container(width: double.infinity,)),
-                          ],
-                        )),
-                  ),
-                ),
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-                Expanded(
-                  flex:5,
-                  child: Container(
-                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: TextButton(
-                                  onPressed: (){
-                                    showDialog(context: context, builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        content: MaterialColorPicker(
-                                            colors: [
-                                              Colors.red,
-                                              Colors.yellow,
-                                              Colors.blue,
-                                              Colors.pink,
-                                              Colors.green
-                                            ],
+              Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                  Expanded(
+                    flex:5,
+                    child: Container(
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: TextButton(
+                                    onPressed: (){
+                                      showDialog(context: context, builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: MaterialColorPicker(
+                                              colors: [
+                                                Colors.red,
+                                                Colors.yellow,
+                                                Colors.blue,
+                                                Colors.pink,
+                                                Colors.green
+                                              ],
 
-                                            onColorChange: (Color color) {
-                                              setState(() {
-                                                colors = color;
-                                                print(colors.toString().substring(6,16));
-                                              });
-                                              // Handle color changes
-                                            },
+                                              onColorChange: (Color color) {
+                                                setState(() {
+                                                  colors = color;
+                                                  print(colors.toString().substring(6,16));
+                                                });
+                                                // Handle color changes
+                                              },
 
-                                            selectedColor: colors
-                                        ),
-                                      );
-                                    });
-                                  }
-                                  , child: Text("Choose...",style: TextStyle(color: Color(0xff334f7f)),)),
-                            ),
-                            // Expanded(flex:3,child: Container(width: double.infinity,)),
-                          ],
-                        )),
-                  ),
-                ),
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-                Expanded(
-                  flex:5,
-                  child: Container(
-                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Container(
-                                child: TextField(
-
-                                  readOnly:true,
-                                  onChanged: (s){
-                                    setState(() {
-
-                                    });
-
-                                    // if(s.contains("@bitsathy.ac.in")){
-                                    //   setState(() {
-                                    //     usernameerror=false;
-                                    //   });
-                                    // }
-                                    // else{
-                                    //   setState(() {
-                                    //     usernameerror=true;
-                                    //   });
-                                    // }
-
-                                  },
-                                  cursorColor: Color(0xfff50f0f),
-                                  controller: username,
-                                  decoration: InputDecoration(
-                                    // errorText: usernameerror?"Invalid Email":null,
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Name',
-                                      focusedBorder: textfieldborder(),
-
-                                      labelStyle: textfieldlabel()
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // Expanded(flex:3,child: Container(width: double.infinity,)),
-
-                          ],
-                        )),
-                  ),
-                ),
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-                Expanded(
-                  flex:5,
-                  child: Container(
-                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Container(
-                                child: TextField(
-                                  readOnly:true,
-                                  onChanged: (s){
-                                    setState(() {
-
-                                    });
-                                    // if(s.contains("@bitsathy.ac.in")){
-                                    //   setState(() {
-                                    //     usernameerror=false;
-                                    //   });
-                                    // }
-                                    // else{
-                                    //   setState(() {
-                                    //     usernameerror=true;
-                                    //   });
-                                    // }
-
-                                  },
-                                  cursorColor: Color(0xfff50f0f),
-                                  controller: depart,
-                                  decoration: InputDecoration(
-                                    // errorText: usernameerror?"Invalid Email":null,
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Department',
-                                      focusedBorder: textfieldborder(),
-
-                                      labelStyle: textfieldlabel()
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // Expanded(flex:3,child: Container(width: double.infinity,)),
-
-                          ],
-                        )),
-                  ),
-                ),
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-                Expanded(
-                  flex:5,
-                  child: Container(
-                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Container(
-                                child: TextField(
-                                  readOnly:true,
-                                  onChanged: (s){
-                                    setState(() {
-
-                                    });
-
-                                    // if(s.contains("@bitsathy.ac.in")){
-                                    //   setState(() {
-                                    //     usernameerror=false;
-                                    //   });
-                                    // }
-                                    // else{
-                                    //   setState(() {
-                                    //     usernameerror=true;
-                                    //   });
-                                    // }
-
-                                  },
-                                  cursorColor: Color(0xfff50f0f),
-                                  controller: mail,
-                                  decoration: InputDecoration(
-                                    // errorText: usernameerror?"Invalid Email":null,
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Email',
-                                      focusedBorder: textfieldborder(),
-
-                                      labelStyle: textfieldlabel()
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // Expanded(flex:3,child: Container(width: double.infinity,)),
-
-                          ],
-                        )),
-                  ),
-                ),
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-              ],
-            ),
-            Row(
-              children: [
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-                Expanded(
-                  flex:5,
-                  child: Container(
-                    child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Container(
-                                child: TextField(
-
-                                  obscureText: password_visible,
-                                  onChanged: (s){
-                                    setState(() {
-
-                                    });
-                                    if(8<=s.length && s.length<=12){
-                                      setState(() {
-                                        check_password=false;
+                                              selectedColor: colors
+                                          ),
+                                        );
                                       });
                                     }
-                                    else{
-                                      setState(() {
-                                        check_password=true;
-                                      });
-                                    }
-
-
-                                  },
-                                  cursorColor: Color(0xfff50f0f),
-                                  controller: password,
-                                  decoration: InputDecoration(
-                                    errorText: check_password?"Invalid Password":null,
-                                    border: UnderlineInputBorder(),
-                                    labelText: 'Password',
-                                      focusedBorder: textfieldborder(),
-
-                                      labelStyle: textfieldlabel(),
-                                    suffixIcon: IconButton(
-                                        onPressed: (){
-                                          setState(() {
-                                            password_visible = !password_visible;
-                                          });
-                                        },
-                                        icon: password_visible?Icon(Icons.remove_red_eye, color: Colors.grey,):Icon(Icons.remove_red_eye,color: Color(0xfff50f0f),))
-                                  ),
-
-                                ),
+                                    , child: Text("Choose...",style: TextStyle(color: Color(0xff334f7f)),)),
                               ),
-                            ),
-                            // Expanded(flex:3,child: Container(width: double.infinity,)),
-
-                          ],
-                        )),
+                              // Expanded(flex:3,child: Container(width: double.infinity,)),
+                            ],
+                          )),
+                    ),
                   ),
-                ),
-                Expanded(
-                    flex: 1,
-                    child: Text("")),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: ElevatedButton(onPressed: () async{
-                if(password.text.length == 0 ) return;
-
-                if(!check_password){
-                  print(colors.toString());
-                  await adduser(username.text, mail.text, password.text,colors.toString().substring(6,16)).then((user){
-                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>home()),(route)=>false);
-                  });
-                }
-                else{
-                  print("---Error---");
-                }
-              }, child: Text("REGISTER"),
-                style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
-
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                ],
               ),
-            )
-          ],
-        ),
-      )
+              Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                  Expanded(
+                    flex:5,
+                    child: Container(
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: Container(
+                                  child: TextField(
+
+                                    readOnly:true,
+                                    onChanged: (s){
+                                      setState(() {
+
+                                      });
+
+                                      // if(s.contains("@bitsathy.ac.in")){
+                                      //   setState(() {
+                                      //     usernameerror=false;
+                                      //   });
+                                      // }
+                                      // else{
+                                      //   setState(() {
+                                      //     usernameerror=true;
+                                      //   });
+                                      // }
+
+                                    },
+                                    cursorColor: Color(0xfff50f0f),
+                                    controller: username,
+                                    decoration: InputDecoration(
+                                      // errorText: usernameerror?"Invalid Email":null,
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Name',
+                                        focusedBorder: textfieldborder(),
+
+                                        labelStyle: textfieldlabel()
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Expanded(flex:3,child: Container(width: double.infinity,)),
+
+                            ],
+                          )),
+                    ),
+                  ),
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                  Expanded(
+                    flex:5,
+                    child: Container(
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: Container(
+                                  child: TextField(
+                                    readOnly:true,
+                                    onChanged: (s){
+                                      setState(() {
+
+                                      });
+                                      // if(s.contains("@bitsathy.ac.in")){
+                                      //   setState(() {
+                                      //     usernameerror=false;
+                                      //   });
+                                      // }
+                                      // else{
+                                      //   setState(() {
+                                      //     usernameerror=true;
+                                      //   });
+                                      // }
+
+                                    },
+                                    cursorColor: Color(0xfff50f0f),
+                                    controller: depart,
+                                    decoration: InputDecoration(
+                                      // errorText: usernameerror?"Invalid Email":null,
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Department',
+                                        focusedBorder: textfieldborder(),
+
+                                        labelStyle: textfieldlabel()
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Expanded(flex:3,child: Container(width: double.infinity,)),
+
+                            ],
+                          )),
+                    ),
+                  ),
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                  Expanded(
+                    flex:5,
+                    child: Container(
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: Container(
+                                  child: TextField(
+                                    readOnly:true,
+                                    onChanged: (s){
+                                      setState(() {
+
+                                      });
+
+                                      // if(s.contains("@bitsathy.ac.in")){
+                                      //   setState(() {
+                                      //     usernameerror=false;
+                                      //   });
+                                      // }
+                                      // else{
+                                      //   setState(() {
+                                      //     usernameerror=true;
+                                      //   });
+                                      // }
+
+                                    },
+                                    cursorColor: Color(0xfff50f0f),
+                                    controller: mail,
+                                    decoration: InputDecoration(
+                                      // errorText: usernameerror?"Invalid Email":null,
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Email',
+                                        focusedBorder: textfieldborder(),
+
+                                        labelStyle: textfieldlabel()
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Expanded(flex:3,child: Container(width: double.infinity,)),
+
+                            ],
+                          )),
+                    ),
+                  ),
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                  Expanded(
+                    flex:5,
+                    child: Container(
+                      child: Padding(padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 7,
+                                child: Container(
+                                  child: TextField(
+
+                                    obscureText: password_visible,
+                                    onChanged: (s){
+                                      setState(() {
+
+                                      });
+                                      if(8<=s.length && s.length<=12){
+                                        setState(() {
+                                          check_password=false;
+                                        });
+                                      }
+                                      else{
+                                        setState(() {
+                                          check_password=true;
+                                        });
+                                      }
+
+
+                                    },
+                                    cursorColor: Color(0xfff50f0f),
+                                    controller: password,
+                                    decoration: InputDecoration(
+                                      errorText: check_password?"Invalid Password":null,
+                                      border: UnderlineInputBorder(),
+                                      labelText: 'Password',
+                                        focusedBorder: textfieldborder(),
+
+                                        labelStyle: textfieldlabel(),
+                                      suffixIcon: IconButton(
+                                          onPressed: (){
+                                            setState(() {
+                                              password_visible = !password_visible;
+                                            });
+                                          },
+                                          icon: password_visible?Icon(Icons.remove_red_eye, color: Colors.grey,):Icon(Icons.remove_red_eye,color: Color(0xfff50f0f),))
+                                    ),
+
+                                  ),
+                                ),
+                              ),
+                              // Expanded(flex:3,child: Container(width: double.infinity,)),
+
+                            ],
+                          )),
+                    ),
+                  ),
+                  Expanded(
+                      flex: 1,
+                      child: Text("")),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: ElevatedButton(onPressed: () async{
+                  if(password.text.length == 0 ) return;
+
+                  if(!check_password){
+                    print(colors.toString());
+                    await adduser(username.text, mail.text, password.text,colors.toString().substring(6,16)).then((user){
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>home()),(route)=>false);
+                    });
+                  }
+                  else{
+                    print("---Error---");
+                  }
+                }, child: Text("REGISTER"),
+                  style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
+
+                ),
+              )
+            ],
+          ),
+        )
+      ),
     );
   }
 }

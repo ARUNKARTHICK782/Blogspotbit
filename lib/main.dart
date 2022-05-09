@@ -4,8 +4,6 @@ import 'dart:typed_data';
 import 'dart:ui';
 import 'package:blogspotbit/colors/colors.dart';
 import 'package:blogspotbit/screens/splashscreen.dart';
-import 'package:blogspotbit/temp/donateform.dart';
-import 'package:blogspotbit/temp/requestform.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:blogspotbit/blogmodel.dart';
@@ -67,7 +65,7 @@ void main() async
       fontFamily: 'Merriweather',
       scaffoldBackgroundColor:  Color(0xfffaeeeb),
     ),
-    home:donateform(), //(auth)?home():  (alreadylogged)?home():
+    home:splashscreen(), //(auth)?home():  (alreadylogged)?home():
   ));
 }
 
@@ -276,12 +274,15 @@ class _homeState extends State<home> {
   ScreenshotController scrncont=ScreenshotController();
   bool temp=false;
   bool like=false;
+  bool tempload=true;
   List<blogmodel> blogs=[];
   List<int> mylikeslist=[];
   List<int> mybookmarkslist=[];
   List<int> myreportedblogs=[];
   bool _loading=true;
   bool templike=false;
+  bool isButtondisabled=false;
+  bool isBookmarkdisabled=false;
   blogfunc() async{
     var response=await showblogs();
     if(response.toString() == "No Blogs Found"){
@@ -321,13 +322,15 @@ updateblog() async {
     // }
   }
 
+
   @override
   void initState() {
-
-    _loading=true;
+    _loading=tempload;
     blogfunc();
     updateblog();
     mefunc();
+    isButtondisabled=true;
+    isBookmarkdisabled=true;
   }
   var _imgfile;
   var scrcont=new ScrollController();
@@ -512,186 +515,228 @@ updateblog() async {
         ),): Screenshot(
           controller: scrncont,
           child: GestureDetector(
-            child: SizedBox(
-              child: PageView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: blogs.length,
-                  itemBuilder: (BuildContext context,int index){
-                    return Column(
-                      children: [
-                        Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Container(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              flex:6 ,
-                                              child: Text(blogs.elementAt(index).title,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 3,
-                                                style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
-                                              ),
+            child: PageView.builder(
+                scrollDirection: Axis.vertical,
+                itemCount: blogs.length,
+                itemBuilder: (BuildContext context,int index){
+                  return Column(
+                    children: [
+                      Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(5),
+                            child: Card(
+                              color: Colors.white,
+                              elevation: 5,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Container(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            flex:6 ,
+                                            child: Text(blogs.elementAt(index).title,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 3,
+                                              style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
                                             ),
-                                            Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
-                                              showDialog(context: context, builder: (BuildContext context){
-                                                return AlertDialog(
-                                                  content: Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
-                                                  actions: [
-                                                    TextButton(onPressed: () async{
-                                                      await report(blogs.elementAt(index).blogid).then((v){
-                                                        initState();
-                                                        Navigator.of(context).pop();
-                                                      });
-                                                    }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
-                                                    TextButton(onPressed: (){
+                                          ),
+                                          Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
+                                            showDialog(context: context, builder: (BuildContext context){
+                                              return AlertDialog(
+                                                content: Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
+                                                actions: [
+                                                  TextButton(onPressed: () async{
+                                                    await report(blogs.elementAt(index).blogid).then((v){
+                                                      tempload=false;
+                                                      initState();
                                                       Navigator.of(context).pop();
-                                                    }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
-                                                  ],
-                                                );
-                                              });
-                                            },))
+                                                    });
+                                                  }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
+                                                  TextButton(onPressed: (){
+                                                    Navigator.of(context).pop();
+                                                  }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
+                                                ],
+                                              );
+                                            });
+                                          },))
+                                        ],
+                                      ),
+                                      Divider(
+                                        thickness: 2,
+                                      ),
+                                      Expanded(
+                                        flex:8,
+                                        child: ListView(
+                                          physics: NeverScrollableScrollPhysics(),
+                                          children: [
+                                            Text(blogs.elementAt(index).content,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 15,
+                                              style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
+                                            ),
+                                            (blogs.elementAt(index).content.length>900)?TextButton(
+                                              onPressed: (){
+                                                Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
+                                              },
+                                              child: Text("Read More", style: TextStyle(color: secondary()),),
+                                            ):Text(""),
                                           ],
                                         ),
-                                        Divider(
-                                          thickness: 2,
-                                        ),
-                                        Expanded(
-                                          flex:8,
-                                          child: ListView(
-                                            physics: NeverScrollableScrollPhysics(),
-                                            children: [
-                                              Text(blogs.elementAt(index).content,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 15,
-                                                style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
-                                              ),
-                                              (blogs.elementAt(index).content.length>900)?TextButton(
-                                                onPressed: (){
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
-                                                },
-                                                child: Text("Read More", style: TextStyle(color: secondary()),),
-                                              ):Text(""),
-                                            ],
-                                          ),
-                                        ),
-                                        //Spacer(),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              flex: 4,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                children: [
-                                                  Expanded(flex:1,child: CircleAvatar(
-                                                    backgroundColor: Color(int.parse(blogs.elementAt(index).authorurl)),
-                                                    child: Text(blogs.elementAt(index).authorname[0],
-                                                      style: TextStyle(color: Colors.white,fontSize: 22.5),
-                                                    ),
-                                                    // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
-                                                  )),
-                                                  Expanded(
-                                                    flex:3,
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(blogs.elementAt(index).authorname,overflow: TextOverflow.ellipsis,),
-                                                        SizedBox(height: 5,),
-                                                        Text(
-                                                          "Published On: " +
-                                                              blogs
-                                                                  .elementAt(index)
-                                                                  .pubdate
-                                                                  .substring(0, 10),
-                                                          style: TextStyle(fontSize: 10),
-                                                        )
-                                                      ],
-                                                    ),
+                                      ),
+                                      //Spacer(),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 4,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Expanded(flex:1,child: CircleAvatar(
+                                                  backgroundColor: Color(int.parse(blogs.elementAt(index).authorurl)),
+                                                  child: Text(blogs.elementAt(index).authorname[0],
+                                                    style: TextStyle(color: Colors.white,fontSize: 22.5),
                                                   ),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              flex: 3,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                children: [
-                                                  IconButton(onPressed: () async{
-                                                    scrncont.capture().then((image) async {
-                                                      await onButtonTap(Share.whatsapp,image!);
-                                                      //Capture Done
-                                                      setState(() {
-                                                        _imgfile = image;
-                                                      });
-                                                    }).catchError((onError) {
-                                                      print(onError);
-                                                    });
-
-                                                  }, icon: Icon(Icons.share)),
-                                                  Column(
+                                                  // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
+                                                )),
+                                                Expanded(
+                                                  flex:3,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),onPressed: () async {
-                                                        await removefromMylikes(blogs.elementAt(index).blogid).then((v){
-                                                          setState(() {
-                                                            initState();
-                                                          });
-                                                        });
-                                                        // addlike(blogs.elementAt(index).blogid);
-                                                        // addtomylikes(FirebaseAuth.instance.currentUser?.email, blogs.elementAt(index).blogid);
-                                                        // setState(() {
-                                                        //   initState();
-                                                        // });
-                                                      },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
-                                                        setState(() {
-                                                        });
-                                                        // await addlike(blogs.elementAt(index).blogid);
-                                                        await addtomylikes(blogs.elementAt(index).blogid).then((v){
-                                                          setState(() {
-                                                            initState();
-                                                          });
-                                                        });
-
-                                                      },),
-                                                      Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
+                                                      Text(blogs.elementAt(index).authorname,overflow: TextOverflow.ellipsis,),
+                                                      SizedBox(height: 5,),
+                                                      Text(
+                                                        "Published On: " +
+                                                            blogs
+                                                                .elementAt(index)
+                                                                .pubdate
+                                                                .substring(0, 10),
+                                                        style: TextStyle(fontSize: 10),
+                                                      )
                                                     ],
                                                   ),
-                                                  (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: tertiary(),onPressed: () async{
-                                                    await removefromMybookmarks(blogs.elementAt(index).blogid);
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 3,
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                IconButton(onPressed: () async{
+                                                  scrncont.capture().then((image) async {
+                                                    await onButtonTap(Share.whatsapp,image!);
+                                                    //Capture Done
                                                     setState(() {
-                                                      initState();
+                                                      _imgfile = image;
                                                     });
-                                                  },):IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
-                                                    await addtomybookmarks(blogs.elementAt(index).blogid);
+                                                  }).catchError((onError) {
+                                                    print(onError);
+                                                  });
+
+                                                }, icon: Icon(Icons.share)),
+                                                Column(
+                                                  children: [
+                                                    (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),onPressed: () async {
+
+                                                      if(isButtondisabled){
+                                                        setState(() {
+                                                          isButtondisabled=false;
+                                                        });
+                                                        await removefromMylikes(blogs.elementAt(index).blogid).then((v){
+                                                          setState(() {
+                                                            tempload=false;
+                                                            initState();
+                                                          });
+                                                        });
+                                                      }
+                                                      else{
+                                                        null;
+                                                      }
+                                                      // addlike(blogs.elementAt(index).blogid);
+                                                      // addtomylikes(FirebaseAuth.instance.currentUser?.email, blogs.elementAt(index).blogid);
+                                                      // setState(() {
+                                                      //   initState();
+                                                      // });
+                                                    },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
+                                                      // await addlike(blogs.elementAt(index).blogid);
+                                                      if(isButtondisabled){
+                                                        setState(() {
+                                                          isButtondisabled=false;
+                                                        });
+                                                        await addtomylikes(blogs.elementAt(index).blogid).then((v){
+                                                          setState(() {
+
+                                                            tempload=false;
+                                                            initState();
+                                                          });
+                                                        });
+                                                      }
+                                                      else{
+                                                        null;
+                                                      }
+
+
+                                                    },),
+                                                    Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
+                                                  ],
+                                                ),
+                                                (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: tertiary(),onPressed: () async{
+                                                  if(isBookmarkdisabled){
                                                     setState(() {
-                                                      initState();
+                                                      isBookmarkdisabled=false;
                                                     });
-                                                  },),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
+                                                    await removefromMybookmarks(blogs.elementAt(index).blogid).then((v){
+                                                      setState(() {
+                                                        tempload=false;
+                                                        initState();
+                                                      });
+                                                    });
+                                                  }
+                                                  else{
+                                                    null;
+                                                  }
+
+
+                                                },):IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
+
+                                                  if(isBookmarkdisabled){
+                                                    setState(() {
+                                                      isBookmarkdisabled=false;
+                                                    });
+                                                    await addtomybookmarks(blogs.elementAt(index).blogid).then((v){
+                                                      setState(() {
+                                                        tempload=false;
+                                                        initState();
+                                                      });
+                                                    });
+                                                  }
+                                                  else{
+                                                    null;
+                                                  }
+
+                                                },),
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      )
+                                    ],
                                   ),
                                 ),
                               ),
-                            )),
-                      ],
-                    );
-                  }),
-            ),
+                            ),
+                          )),
+                    ],
+                  );
+                }),
             onPanUpdate: (details) {
 
               // Swiping in left direction.
@@ -699,7 +744,12 @@ updateblog() async {
                 Navigator.push(context,PageTransition(
                   type: PageTransitionType.leftToRight,
                   child: profile(),
-                ),);
+                ),).then((value) {
+                  setState(() {
+                    tempload=false;
+                  });
+                  initState();
+                });
               }
             },
           ),
@@ -716,6 +766,7 @@ updateblog() async {
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>addblog())).then((value)
                   {
                     print("after add blog");
+                    tempload=true;
                     initState();
                   });
                   // Obtain shared preferences.
@@ -896,6 +947,7 @@ class _myblogsState extends State<myblogs> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xfff50f0f),
+        automaticallyImplyLeading: true,
       ),
       body:(_loading)?Center(child: CircularProgressIndicator(color: tertiary(),)):(mybloglist.isNotEmpty)?
       SingleChildScrollView(
@@ -975,7 +1027,7 @@ class _myblogsState extends State<myblogs> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,
                   children: [
-                    Text("You have not posted any Blogs"),
+                    Text("You haven't posted any Blogs😕"),
                     SizedBox(
                       height: 10,
                     ),
@@ -987,7 +1039,7 @@ class _myblogsState extends State<myblogs> {
                             children: [
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text("Add a Blog",style: TextStyle(color: secondary()),),
+                                child: Text("Add a Blog ❤️",style: TextStyle(color: secondary()),),
                               ),
                             ],
                           )),
@@ -1231,7 +1283,7 @@ class _blogdetailState extends State<blogdetail> {
                         actions: [
                           TextButton(child: Text("Yes",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold)),onPressed: () async {
                             await deletemyblog(widget.blog.blogid).then((value){
-                              Navigator.pop(context);
+                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>myblogs()), (route) => false);
                             });
                           },),
                           TextButton(child: Text("No",style:TextStyle(color:tertiary(),fontWeight: FontWeight.bold)),onPressed: () async {
