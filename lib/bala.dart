@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:blogspotbit/main.dart';
 import 'package:blogspotbit/responsive.dart';
+import 'package:blogspotbit/tempfile/tempdartfile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,12 +15,14 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 
 import 'Components/styles.dart';
+import 'apihandler.dart';
 import 'block_picker.dart';
 import 'colors/colors.dart';
 import 'screens/desktopcontainer.dart';
 
 var verify, reg_email, reg_department, reg_name;
 var user, token, otpjson;
+tempclass obj=new tempclass();
 void _launchURL() async {
   const _url = "https://forms.gle/ScqKF8EqBS69LxNCA";
   if (!await launch(_url)) throw 'Could not launch $_url';
@@ -39,20 +42,6 @@ toast(message) {
   return "true";
 }
 
-gettoken(String? email, String? password) async {
-  print("in get token"+email.toString());
-  var b={"email":email,"password":password};
-  print(b);
-  var res=await http.post(
-    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/check"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: json.encode(b),
-  );
-  print(res.body);
-  return res.body;
-}
 
 getotp(String? email, String? subject) async {
 
@@ -62,6 +51,7 @@ getotp(String? email, String? subject) async {
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/send/email/otp"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'x-auth-token':obj.str,
     },
     body: json.encode(b),
   );
@@ -84,6 +74,7 @@ verifyotp(String? key, int? otp, String? check) async {
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/send/verify/otp"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'x-auth-token':obj.str,
     },
     body: json.encode(b),
   );
@@ -104,6 +95,7 @@ adduser(String? name, String? email, String? password,String colors) async {
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/add/8979"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'Secret_Key':tempclass.inte.toString(),
     },
     body: json.encode(b),
   );
@@ -244,7 +236,7 @@ class _LoginPageState extends State<LoginPage> {
   bool contentvalidate=false;
   bool contentro=true;
   bool usernameerror=false;
-  bool passworderror=false, password_visible = true;
+  bool passworderror=false, password_visible = true,loading=false;
   int len=0;
   String temp="", token="";
   Color currentColor = Colors.amber;
@@ -421,13 +413,22 @@ class _LoginPageState extends State<LoginPage> {
                 Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
+                    setState(() {
+                      loading=true;
+                    });
                     if(username.text.isEmpty || password.text.isEmpty){
                       toast("Email and Password required");
+                      setState(() {
+                        loading=false;
+                      });
                       return;
                     }
 
                     if(!usernameerror && !passworderror){
                       await gettoken(username.text.trim(), password.text.trim()).then((v) async {
+                        setState(() {
+                          loading=false;
+                        });
                         if(v == "Invalid Email or Password"){
                             toast("Invalid Email or Password");
                         }
@@ -447,11 +448,17 @@ class _LoginPageState extends State<LoginPage> {
                       if(usernameerror) return toast("Invalid Email");
                       if(passworderror) return toast("Invalid Password");
                       print("---Error---");
+                      setState(() {
+                        loading=false;
+                      });
                     }
                   }, child: Text("LOGIN"),
                     style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
                   ),
                 ),
+                (loading)?CircularProgressIndicator(
+                  color: tertiary(),
+                ):Text(""),
                 Image(image: AssetImage("images/LoginBanner.png")),
 
 
@@ -485,6 +492,7 @@ class _RegisterPageState extends State<RegisterPage> {
   bool rotperror=false;
   int len=0;
   bool check=false, check2 = true, check3 = true;
+  bool loading=false;
   String temp="", token="";
   var decodeotp;
   Color colors=Colors.black;
@@ -684,6 +692,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 check2?Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
+                    setState(() {
+                      loading=true;
+                    });
                     if(username.text.isEmpty ) {
                       toast("Email is required");
                       return;
@@ -700,6 +711,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         }
                         else{
                           setState(() {
+                            loading=false;
                             check = true;
                             check2 = false;
                             startTimer();
@@ -750,7 +762,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
                   ),
                 ),
-
+                (loading)?CircularProgressIndicator():Text(""),
                 Image(image: AssetImage("images/LoginBanner.png")),
               ],),
           ),

@@ -1,11 +1,17 @@
 import 'dart:convert';
 
 import 'package:blogspotbit/blogmodel.dart';
+import 'package:blogspotbit/tempfile/tempdartfile.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_share_me/flutter_share_me.dart';
+
+
 
 
 gettoken(String? email,String? password) async {
+  tempclass obj=new tempclass();
   print("in get token"+email.toString());
   var prefs=await SharedPreferences.getInstance();
   var b={"email":email,"password":password};
@@ -14,6 +20,7 @@ gettoken(String? email,String? password) async {
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/check"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
+      'x-auth-token': obj.str,
     },
     body: json.encode(b),
   );
@@ -43,6 +50,7 @@ mefunc() async{
 }
 
 Future<void> addblogtodb(String title,String content,String userid) async {
+
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
   var blog={"title" :title, "content" : content,"author_id":userid};
@@ -128,16 +136,16 @@ deleteme() async {
 //   prefs.setString("uid", me["_id"].toString());
 //   prefs.setString("token", uniquetoken);
 // }
-
-addlike(int blogid) async {
-  var res=await http.put(Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/like/$blogid"));
-  print(res.body);
-}
-
-removelike(int blogid) async {
-  var res=await http.put(Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/dislike/$blogid"));
-  print(res.body);
-}
+//
+// addlike(int blogid) async {
+//   var res=await http.put(Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/like/$blogid"));
+//   print(res.body);
+// }
+//
+// removelike(int blogid) async {
+//   var res=await http.put(Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/dislike/$blogid"));
+//   print(res.body);
+// }
 
 addtomylikes(int blogid) async{
   final prefs=await SharedPreferences.getInstance();
@@ -159,6 +167,7 @@ removefromMylikes(int blogid) async{
   var res=await http.put(
       Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/rmliked/$blogid"),
       headers: <String,String>{
+        'Content-Type': 'application/json; charset=UTF-8',
         'x-auth-token':ftoken.toString()
       }
   );
@@ -183,8 +192,15 @@ mylikes() async {
 }
 
 myblogsfunc(String? uid) async{
+  final prefs=await SharedPreferences.getInstance();
+  String? ftoken=await prefs.getString("token");
   List<blogmodel> returnlist=[];
-  var res=await http.get(Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/showmyblogs/$uid"));
+  var res=await http.get(
+      Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/showmyblogs/$uid"),
+    headers: <String,String>{
+      'x-auth-token':ftoken.toString()
+    }
+  );
   print(res.body);
   var myblogs=json.decode(res.body);
   for (var i in myblogs){
@@ -248,6 +264,7 @@ removefromMybookmarks(int blogid) async{
   var res=await http.put(
       Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/rmsaved/$blogid"),
       headers: <String,String>{
+        'Content-Type': 'application/json; charset=UTF-8',
         'x-auth-token':ftoken.toString()
       }
   );
@@ -283,68 +300,25 @@ mysavedblogsprofile() async{
 }
 
 
-getotp(String? email, String? subject) async {
-
-  var b={"email":email,"type":subject};
-
-  var res=await http.post(
-    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/send/email/otp"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: json.encode(b),
-  );
-
-  var finaldetails = json.decode(res.body);
-
-  return finaldetails;
-}
-
-verifyotp(String? key, int? otp, String? check) async {
-  var b ={
-    "verification_key": key,
-    "otp":otp,
-    "check": check
-  };
-
-  var res = await http.post(
-    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/send/verify/otp"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: json.encode(b),
-  );
-  var finaldetails = json.decode(res.body);
-  return finaldetails;
-}
-
-adduser(String? name, String? email, String? password, String? url) async {
-  var prefs=await SharedPreferences.getInstance();
-  var b={"name": name,"email":email,"password":password, "url": url};
-  print(b);
-  var res=await http.post(
-    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/add/8979"),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: json.encode(b),
-  );
-  print(res.body);
-  String? token = res.headers['x-auth-token'];
-  prefs.setString("token", token!);
-  print("bala daw "+prefs.getString("token").toString());
-  return res.body;
-}
-
-report(int blogid) async{
+report(int blogid,Map mymap) async{
   var prefs=await SharedPreferences.getInstance();
   String t=await prefs.getString("token").toString();
   var res=await http.put(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/report/$blogid"),
     headers:<String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
-      'x-auth-token':t
+      'x-auth-token':t,
     },
-  );
+    body:json.encode({
+      "reportreason":mymap
+    }) );
   print("in report function"+res.body.toString());
+}
+
+share(int id) async{
+  String msg ='https://blog-spot-bit-2022.herokuapp.com/api/blogs/blog/$id';
+  String? response;
+  final FlutterShareMe flutterShareMe = FlutterShareMe();
+  response = await flutterShareMe.shareToWhatsApp(msg: msg);
+  debugPrint(response);
 }

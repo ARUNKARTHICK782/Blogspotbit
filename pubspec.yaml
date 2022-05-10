@@ -78,6 +78,7 @@ flutter:
   uses-material-design: true
   assets:
      - images/
+     - tempfile/
   fonts:
      - family: CutiveMono
        fonts:

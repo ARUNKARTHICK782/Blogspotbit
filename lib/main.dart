@@ -23,6 +23,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
+import 'Components/chipbuilder.dart';
 import 'Components/styles.dart';
 import 'bala.dart';
 import 'apihandler.dart';
@@ -283,6 +284,7 @@ class _homeState extends State<home> {
   bool templike=false;
   bool isButtondisabled=false;
   bool isBookmarkdisabled=false;
+  Map reportmap=new Map();
   blogfunc() async{
     var response=await showblogs();
     if(response.toString() == "No Blogs Found"){
@@ -321,8 +323,9 @@ updateblog() async {
     //   }
     // }
   }
-
-
+  int? _value = 1;
+  List<String> reportreason=[];
+  bool reportc1=false,reportc2 =false,reportc3 =false;
   @override
   void initState() {
     _loading=tempload;
@@ -331,6 +334,7 @@ updateblog() async {
     mefunc();
     isButtondisabled=true;
     isBookmarkdisabled=true;
+    reportmap.addAll({"Abusive":0,"Irrelevant":0,"Spam/Suspicious":0});
   }
   var _imgfile;
   var scrcont=new ScrollController();
@@ -547,20 +551,85 @@ updateblog() async {
                                           ),
                                           Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
                                             showDialog(context: context, builder: (BuildContext context){
-                                              return AlertDialog(
-                                                content: Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
-                                                actions: [
-                                                  TextButton(onPressed: () async{
-                                                    await report(blogs.elementAt(index).blogid).then((v){
-                                                      tempload=false;
-                                                      initState();
-                                                      Navigator.of(context).pop();
-                                                    });
-                                                  }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
-                                                  TextButton(onPressed: (){
-                                                    Navigator.of(context).pop();
-                                                  }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
-                                                ],
+                                              return StatefulBuilder(
+                                                builder: (context,setState) {
+                                                  return AlertDialog(
+                                                    content: Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
+                                                        Wrap(
+                                                          children: [
+                                                            ChoiceChip(
+                                                              label: Text("Abusive"),
+                                                              disabledColor: Colors.grey,
+                                                              selectedColor: Colors.red,
+                                                              onSelected: (bool selected) {
+                                                                setState(() {
+                                                                  reportc1=selected;
+                                                                  if(selected){ reportmap.update("Abusive", (value) => 1);}
+                                                                  else{
+                                                                    reportmap.update("Abusive", (value) => 0);
+                                                                  }
+                                                                });
+                                                              }, selected: reportc1,
+                                                            ),
+                                                            ChoiceChip(
+                                                              label: Text("Irrelevant"),
+                                                              disabledColor: Colors.grey,
+                                                              selectedColor: Colors.red,
+                                                              onSelected: (bool selected) {
+                                                                setState(() {
+                                                                  reportc2=selected;
+                                                                  if(selected) {
+                                                                    reportmap.update("Irrelevant", (value) => 1);
+                                                                  }
+                                                                  else{
+                                                                    reportmap.update("Irrelevant", (value) => 0);
+                                                                  }
+
+                                                                });
+                                                              }, selected: reportc2,
+                                                            ),
+                                                            ChoiceChip(
+                                                              label: Text("Spam/Suspicious"),
+                                                              disabledColor: Colors.grey,
+                                                              selectedColor: Colors.red,
+                                                              onSelected: (bool selected) {
+                                                                setState(() {
+                                                                  reportc3=selected;
+                                                                  if(selected){
+                                                                    reportmap.update("Spam/Suspicious", (value) => 1);
+                                                                  }
+                                                                  else{
+                                                                    reportmap.update("Spam/Suspicious", (value) => 0);
+                                                                  }
+                                                                });
+                                                              },
+                                                              selected: reportc3,
+                                                              selectedShadowColor: Colors.black,
+                                                            )
+                                                          ],
+                                                        )
+                                                      ],
+                                                    ),
+                                                    actions: [
+                                                      TextButton(onPressed: () async{
+                                                        // String aa=reportreason.toString();
+                                                        // print(aa);
+                                                        // print(reportmap.toString());
+                                                        await report(blogs.elementAt(index).blogid,reportmap).then((v){
+                                                          tempload=false;
+                                                          initState();
+                                                          Navigator.of(context).pop();
+                                                        });
+                                                      }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
+                                                      TextButton(onPressed: (){
+                                                        Navigator.of(context).pop();
+                                                      }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
+                                                    ],
+                                                  );
+                                                }
                                               );
                                             });
                                           },))
@@ -631,15 +700,16 @@ updateblog() async {
                                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                               children: [
                                                 IconButton(onPressed: () async{
-                                                  scrncont.capture().then((image) async {
-                                                    await onButtonTap(Share.whatsapp,image!);
-                                                    //Capture Done
-                                                    setState(() {
-                                                      _imgfile = image;
-                                                    });
-                                                  }).catchError((onError) {
-                                                    print(onError);
-                                                  });
+                                                  await share(blogs.elementAt(index).blogid);
+                                                  // scrncont.capture().then((image) async {
+                                                  //   await onButtonTap(Share.whatsapp,image!);
+                                                  //   //Capture Done
+                                                  //   setState(() {
+                                                  //     _imgfile = image;
+                                                  //   });
+                                                  // }).catchError((onError) {
+                                                  //   print(onError);
+                                                  // });
 
                                                 }, icon: Icon(Icons.share)),
                                                 Column(
