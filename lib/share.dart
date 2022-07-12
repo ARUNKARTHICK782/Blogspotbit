@@ -8,7 +8,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'main.dart';
 
-Future<void> onButtonTap(Share share,Uint8List comingfile) async {
+Future<void> onButtonTap(oldShare share,Uint8List comingfile) async {
   String msg =
       'Flutter share is great!!\n Check out full example at https://pub.dev/packages/flutter_share_me';
   String url = 'https://pub.dev/packages/flutter_share_me';

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 
 import '../bala.dart';
 
@@ -42,10 +43,13 @@ class _splashscreenState extends State<splashscreen> with TickerProviderStateMix
     animation?.dispose();
     super.dispose();
   }
-
+  screenRecordBlocker() async{
+    await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  }
   @override
-  void initState() {
+  initState()  {
     super.initState();
+    screenRecordBlocker();
     animation = AnimationController(vsync: this, duration: Duration(seconds: 3),);
     _fadeInFadeOut = Tween<double>(begin: 0.0, end: 1).animate(animation!);
     animation?.addStatusListener((status){

@@ -54,6 +54,11 @@ Future<void> addblogtodb(String title,String content,String userid) async {
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
   var blog={"title" :title, "content" : content,"author_id":userid};
+  // ,"report_reason":{
+  // "Abusive":0,
+  // "Irrelevant":0,
+  // "Spam or Suspicious":0
+  // }
   await http.post(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/blogs/add"),
     headers: <String, String>{
@@ -229,7 +234,7 @@ mybookmarks() async {
   String? ftoken=await prefs.getString("token");
   var res=await http.get(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/me"),
-    headers: <String, String>{
+    headers:{
       'Content-Type': 'application/json; charset=UTF-8',
       'x-auth-token':ftoken.toString(),
     },
@@ -243,7 +248,9 @@ mybookmarks() async {
   return response["saved"].cast<int>();
 }
 
+
 addtomybookmarks(int blogid) async{
+  print("in addtomybookmarks");
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
   var res=await http.put(
@@ -280,9 +287,11 @@ mysavedblogsprofile() async{
   var res=await http.get(
       Uri.parse("http://blog-spot-bit-2022.herokuapp.com/api/blogs/showsavedblogs"),
       headers: <String,String>{
+        'Content-Type': 'application/json; charset=UTF-8',
         'x-auth-token':ftoken.toString()
       }
   );
+  print("ldf"+res.body);
   if(res.body=="No Saved Blogs"){
     return;
   }
@@ -300,18 +309,24 @@ mysavedblogsprofile() async{
 }
 
 
-report(int blogid,Map mymap) async{
+report(int blogid,int a,int i,int s) async{
   var prefs=await SharedPreferences.getInstance();
   String t=await prefs.getString("token").toString();
+  var ak={
+    "report_reason":{
+      "Abusive":a,
+      "Irrelavent":i,
+      "Spam":s
+    }
+  };
   var res=await http.put(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/report/$blogid"),
     headers:<String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'x-auth-token':t,
     },
-    body:json.encode({
-      "reportreason":mymap
-    }) );
+    body:json.encode(ak)
+    );
   print("in report function"+res.body.toString());
 }
 

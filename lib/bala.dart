@@ -92,7 +92,7 @@ adduser(String? name, String? email, String? password,String colors) async {
   var b={"name": name,"email":email,"password":password,"profile_color":colors};
   print(b);
   var res=await http.post(
-    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/add/8979"),
+    Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/add"),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'Secret_Key':tempclass.inte.toString(),
