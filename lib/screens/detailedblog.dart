@@ -2,6 +2,8 @@ import 'package:blogspotbit/apihandler.dart';
 import 'package:blogspotbit/blogmodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class detailedblog extends StatefulWidget {
   final blogmodel blog;
@@ -40,6 +42,14 @@ class _detailedblogState extends State<detailedblog> {
                           Divider(
                             thickness: 2,
                           ),
+                          // Linkify(
+                          //     text: widget.blog.content,
+                          //   onOpen: (l)async{
+                          //     if(await canLaunchUrl(Uri.parse(l.url))) {
+                          //       await launchUrl(Uri.parse(l.url));
+                          //     }
+                          //   },
+                          // )
                           Text(widget.blog.content,
                             style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
                           ),
@@ -49,9 +59,6 @@ class _detailedblogState extends State<detailedblog> {
                   ),
                 ),
               ),
-              onDoubleTap: (){
-                print(MediaQuery.of(context).padding.bottom);
-              },
             ),
           ],
         ),

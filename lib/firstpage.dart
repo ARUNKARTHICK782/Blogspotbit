@@ -90,7 +90,6 @@ verifyotp(String? key, int? otp, String? check) async {
 adduser(String? name, String? email, String? password,String colors) async {
   var prefs=await SharedPreferences.getInstance();
   var b={"name": name,"email":email,"password":password,"profile_color":colors};
-  print(b);
   var res=await http.post(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/add"),
     headers: <String, String>{
@@ -99,7 +98,6 @@ adduser(String? name, String? email, String? password,String colors) async {
     },
     body: json.encode(b),
   );
-  print(res.body);
   token = res.headers['x-auth-token'];
   await prefs.setString("token", token);
   return res.body;
@@ -447,7 +445,6 @@ class _LoginPageState extends State<LoginPage> {
                     else{
                       if(usernameerror) return toast("Invalid Email");
                       if(passworderror) return toast("Invalid Password");
-                      print("---Error---");
                       setState(() {
                         loading=false;
                       });
@@ -540,7 +537,6 @@ class _RegisterPageState extends State<RegisterPage> {
       },
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -721,7 +717,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     }
                     else{
-                      print("---Error---");
                       toast("Only bitsathy accounts allowed");
                       return;
                     }
@@ -731,15 +726,15 @@ class _RegisterPageState extends State<RegisterPage> {
                 ):Padding(
                   padding: const EdgeInsets.all(30.0),
                   child: ElevatedButton(onPressed: () async{
-
+                    setState(() {
+                      loading=true;
+                    });
                     if(otp.text.length == 0) return;
 
                     if(!rotperror ){
-                      print(_min.toString()+"sec : "+_sec.toString());
 
                         await verifyotp(otpjson['Details'], int.parse(otp.text), username.text+"@bitsathy.ac.in").then((v) {
 
-                          // print(verify)
                           if(v == 'OTP NOT Matched'){
                             toast('OTP NOT Matched');
                           }
@@ -756,13 +751,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     }
                     else{
-                      print("---Error---");
                     }
                   }, child: Text("START REGISTRATION"),
                     style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),
                   ),
                 ),
-                (loading)?CircularProgressIndicator():Text(""),
+                (loading)?CircularProgressIndicator(color: tertiary(),):Text(""),
                 Image(image: AssetImage("images/LoginBanner.png")),
               ],),
           ),
@@ -826,24 +820,44 @@ class _OTPVerifiedState extends State<OTPVerified> {
         return back_bool;
       },
       child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xfff50f0f),
-          title: Padding(
-            padding: const EdgeInsets.only(left:10.0),
-            child: Text("BLOGSPOTBIT"),
-          ),
-          actions: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8,8,10,8),
-              child: ElevatedButton(onPressed: () => {
-                _launchURL()
-              },
-                child: Text("Help",style:TextStyle(color: Color(0xfff50f0f))),
-                style: ElevatedButton.styleFrom(primary: Colors.white),
-              ),
-            )
-          ],
+          //
+
+          // PreferredSize(child: Container(
+          //   height: 200.0,
+          //   decoration: BoxDecoration(
+          //     color: secondary(),
+          //     boxShadow: [
+          //       new BoxShadow(blurRadius: 10.0)
+          //     ],
+          //     borderRadius: BorderRadius.vertical(
+          //         bottom: Radius.elliptical(
+          //             MediaQuery.of(context).size.width, 120.0)),
+          //   ),
+          // ), preferredSize: Size.fromHeight(120.0), ),
+        appBar:AppBar(
+        // shape: RoundedRectangleBorder(
+        //   borderRadius: BorderRadius.vertical(
+        //     bottom: Radius.circular(30),
+        //   ),
+        // ),
+        backgroundColor: Color(0xfff50f0f),
+        title: Padding(
+
+          padding: const EdgeInsets.only(left:10.0),
+          child: Text("BlogSpotBIT")
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8,8,10,8),
+            child: ElevatedButton(onPressed: () => {
+              _launchURL()
+            },
+              child: Text("Help",style:TextStyle(color: Color(0xfff50f0f))),
+              style: ElevatedButton.styleFrom(primary: Colors.white),
+            ),
+          )
+        ],
+      ),
         body: SingleChildScrollView(
           child: Column(
             children: [
@@ -921,7 +935,6 @@ class _OTPVerifiedState extends State<OTPVerified> {
                                               onColorChange: (Color color) {
                                                 setState(() {
                                                   colors = color;
-                                                  print(colors.toString().substring(6,16));
                                                 });
                                                 // Handle color changes
                                               },
@@ -957,6 +970,7 @@ class _OTPVerifiedState extends State<OTPVerified> {
                               Expanded(
                                 flex: 7,
                                 child: Container(
+
                                   child: TextField(
 
                                     readOnly:true,
@@ -1186,13 +1200,12 @@ class _OTPVerifiedState extends State<OTPVerified> {
                   if(password.text.length == 0 ) return;
 
                   if(!check_password){
-                    print(colors.toString());
                     await adduser(username.text, mail.text, password.text,colors.toString().substring(6,16)).then((user){
                       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>home()),(route)=>false);
                     });
                   }
                   else{
-                    print("---Error---");
+
                   }
                 }, child: Text("REGISTER"),
                   style: ElevatedButton.styleFrom(primary: Color(0xfff50f0f)),

@@ -24,5 +24,4 @@ Future<void> onButtonTap(oldShare share,Uint8List comingfile) async {
   } else {
     response = await flutterShareMe.shareToWhatsApp(msg: msg);
   }
-  debugPrint(response);
 }

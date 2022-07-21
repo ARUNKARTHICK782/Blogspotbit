@@ -52,6 +52,7 @@ dependencies:
   peanut: ^4.1.1
   share_plus: ^4.0.4
   flutter_windowmanager: ^0.2.0
+  flutter_linkify: ^5.0.2
 
 flutter_icons:
   android: true

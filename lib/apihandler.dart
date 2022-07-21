@@ -12,10 +12,8 @@ import 'package:flutter_share_me/flutter_share_me.dart';
 
 gettoken(String? email,String? password) async {
   tempclass obj=new tempclass();
-  print("in get token"+email.toString());
   var prefs=await SharedPreferences.getInstance();
   var b={"email":email,"password":password};
-  print(b);
   var res=await http.post(
     Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/check"),
     headers: <String, String>{
@@ -24,7 +22,6 @@ gettoken(String? email,String? password) async {
     },
     body: json.encode(b),
   );
-  print(res.body);
   // String? token = res.headers['x-auth-token'];
   prefs.setString("token", res.body.toString());
   return res.body.toString();
@@ -41,7 +38,6 @@ mefunc() async{
     },
   );
   var me=json.decode(res.body);
-  print(me);
   prefs.setString("id", me["_id"]);
   prefs.setString("email", me['email']);
   prefs.setString('name',me['name']);
@@ -68,7 +64,6 @@ Future<void> addblogtodb(String title,String content,String userid) async {
     body: json.encode(blog),
   ).then((value) =>
   {
-    print(value.body)
   });
 }
 
@@ -81,8 +76,6 @@ showblogs() async {
         'x-auth-token':token,
       }
   );
-  print(res.statusCode);
-  print(json.decode(res.body));
   var blogs=json.decode(res.body);
   if(blogs.toString() == "No blogs Found"){
     return "No Blogs Found";
@@ -95,7 +88,6 @@ showblogs() async {
       //print(i);
   }
   List<blogmodel> reversedList = new List.from(finalblogs.reversed);
-  print("kjghk"+reversedList[0].title);
   return reversedList;
  // print(res.body);
 }
@@ -112,19 +104,17 @@ returntoken(String? name,String? email,String? password,String? photourl) async{
   // var head=json.decode(res.headers);
   // var head=json.decode(res.headers.toString());
   //print(res.headers["x-auth-token"]);
-  print("in return token"+res.headers["x-auth-token"].toString());
+
   return res.headers["x-auth-token"];
 }
 
 deleteme() async {
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
-  print("fjskdfjls"+ftoken.toString());
   var res=await http.get(
       Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/delete"),
       headers: <String, String>{'x-auth-token':ftoken.toString(),}
   );
-  print(res.body);
 }
 
 // sharedprefFunc(String uniquetoken) async {
@@ -163,7 +153,6 @@ addtomylikes(int blogid) async{
       },
       body: json.encode({"_id":blogid})
   );
-  print(res.body);
 }
 
 removefromMylikes(int blogid) async{
@@ -176,13 +165,11 @@ removefromMylikes(int blogid) async{
         'x-auth-token':ftoken.toString()
       }
   );
-  print("removefromMylikes"+res.body.toString());
 }
 
 mylikes() async {
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
-  print(prefs.getString("token"));
   var res=await http.get(
       Uri.parse("https://blog-spot-bit-2022.herokuapp.com/api/users/me"),
       headers: <String, String>{
@@ -190,9 +177,7 @@ mylikes() async {
         'x-auth-token':ftoken.toString(),
       },
   );
-  print(res.body);
   var response=json.decode(res.body);
-  print(response["liked_blogs"]);
   return response["liked_blogs"].cast<int>();
 }
 
@@ -206,13 +191,11 @@ myblogsfunc(String? uid) async{
       'x-auth-token':ftoken.toString()
     }
   );
-  print(res.body);
   var myblogs=json.decode(res.body);
   for (var i in myblogs){
     blogmodel blog=new blogmodel.fromJson(i);
     returnlist.add(blog);
   }
-  print(res.body);
   return returnlist;
 }
 
@@ -226,7 +209,6 @@ deletemyblog(int blogid) async{
       'x-auth-token':ftoken.toString(),
     },
   );
-  print(res.body);
 }
 
 mybookmarks() async {
@@ -239,10 +221,7 @@ mybookmarks() async {
       'x-auth-token':ftoken.toString(),
     },
   );
-  print(res.body);
   var response=json.decode(res.body);
-  print("alkalalal");
-  print(response["saved"]);
   List<dynamic> temp=response["saved"];
 
   return response["saved"].cast<int>();
@@ -250,7 +229,6 @@ mybookmarks() async {
 
 
 addtomybookmarks(int blogid) async{
-  print("in addtomybookmarks");
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
   var res=await http.put(
@@ -261,8 +239,6 @@ addtomybookmarks(int blogid) async{
       },
       body: json.encode({"_id":blogid})
   );
-  print("added to my bookmarks");
-  print(res.body);
 }
 
 removefromMybookmarks(int blogid) async{
@@ -275,15 +251,12 @@ removefromMybookmarks(int blogid) async{
         'x-auth-token':ftoken.toString()
       }
   );
-  print("removed to my bookmarks");
-  print(res.body);
 }
 
 mysavedblogsprofile() async{
   List<blogmodel> returnlist=[];
   final prefs=await SharedPreferences.getInstance();
   String? ftoken=await prefs.getString("token");
-  print("in my saved blogs profile"+ftoken.toString());
   var res=await http.get(
       Uri.parse("http://blog-spot-bit-2022.herokuapp.com/api/blogs/showsavedblogs"),
       headers: <String,String>{
@@ -291,20 +264,15 @@ mysavedblogsprofile() async{
         'x-auth-token':ftoken.toString()
       }
   );
-  print("ldf"+res.body);
   if(res.body=="No Saved Blogs"){
     return;
   }
   var blogs=json.decode(res.body);
-  print("QLKWJELKASDJFLKSD");
-  print(blogs);
   for(var i in blogs){
     blogmodel blog=new blogmodel.fromJson(i);
-    print(blog.title);
     returnlist.add(blog);
   }
   return returnlist;
-  print(res.body);
 
 }
 
@@ -327,7 +295,6 @@ report(int blogid,int a,int i,int s) async{
     },
     body:json.encode(ak)
     );
-  print("in report function"+res.body.toString());
 }
 
 share(int id) async{
@@ -335,5 +302,4 @@ share(int id) async{
   String? response;
   final FlutterShareMe flutterShareMe = FlutterShareMe();
   response = await flutterShareMe.shareToWhatsApp(msg: msg);
-  debugPrint(response);
 }

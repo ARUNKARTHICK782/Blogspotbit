@@ -26,10 +26,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:flutter_share_me/flutter_share_me.dart';
 import 'Components/chipbuilder.dart';
 import 'Components/styles.dart';
-import 'bala.dart';
+import 'firstpage.dart';
 import 'apihandler.dart';
 import 'googleauth.dart';
 import 'screens/detailedblog.dart';
+import 'package:flutter_linkify/flutter_linkify.dart';
 // bool auth=false;
 String token="";
 void main() async
@@ -50,10 +51,9 @@ void main() async
   //     .listen((User? user) {
   //   if (user == null) {
   //     auth=false;
-  //     print('User is currently signed out!');
   //   } else {
   //     auth=true;
-  //     print('User is signed in!');
+
   //   }
   // });
   runApp(MaterialApp(
@@ -147,7 +147,6 @@ class _addblogState extends State<addblog> {
                                     setState(() {
                                       temp=s;
                                     });
-                                      print(s.length);
                                       if(s.length>=60){
                                         setState(() {
                                           titleError=true;
@@ -340,10 +339,8 @@ class _homeState extends State<home> {
   blogfunc() async{
     var response=await showblogs();
     if(response.toString() == "No Blogs Found"){
-      print("NO BLOGS FOUND");
     }
     else{
-      print("DATA HAVING");
       blogs=response;
     }
 
@@ -358,10 +355,6 @@ updateblog() async {
   mylikeslist=await mylikes();
     mybookmarkslist=await mybookmarks();
     myreportedblogs=meres['reported'].cast<int>();
-    print("my reported blogs"+myreportedblogs.toString());
-    print("type of mblist");
-    print(meres);
-    print(mybookmarkslist.runtimeType);
 
 
     setState(() {
@@ -391,6 +384,9 @@ updateblog() async {
   }
   var _imgfile;
   var scrcont=new ScrollController();
+  var selectedColor1=Colors.black;
+  var selectedColor2=Colors.black;
+  var selectedColor3=Colors.black;
   @override
   Widget build(BuildContext context) {
     PageController pc=PageController(initialPage: 1);
@@ -544,7 +540,6 @@ updateblog() async {
                                                   _imgfile = image;
                                                 });
                                               }).catchError((onError) {
-                                                print(onError);
                                               });
 
                                             }, icon: Icon(Icons.share)),
@@ -575,320 +570,7 @@ updateblog() async {
                     )),
               ],
             ),
-          ),): Screenshot(
-            controller: scrncont,
-            child: GestureDetector(
-              child: PageView.builder(
-                  scrollDirection: Axis.vertical,
-                  itemCount: blogs.length,
-                  itemBuilder: (BuildContext context,int index){
-                    return Column(
-                      children: [
-                        Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(5),
-                              child: Card(
-                                color: Colors.white,
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Container(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              flex:6 ,
-                                              child: Text(blogs.elementAt(index).title,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 3,
-                                                style: TextStyle(fontSize: 27.5,fontWeight: FontWeight.w500,fontFamily: 'Oswald'),
-                                              ),
-                                            ),
-                                            Expanded(flex:1,child: IconButton(icon:Icon(Icons.flag_outlined),onPressed: (){
-                                              showDialog(context: context, builder: (BuildContext context){
-                                                return StatefulBuilder(
-                                                  builder: (context,setState) {
-                                                    return AlertDialog(
-                                                      content: Column(
-                                                        mainAxisSize: MainAxisSize.min,
-                                                        children: [
-                                                          Text("Do you want to report this blog?",style: TextStyle(color: secondary(), fontWeight: FontWeight.bold),),
-                                                          Wrap(
-                                                            children: [
-                                                              ChoiceChip(
-                                                                label: Text("Abusive"),
-                                                                disabledColor: Colors.grey,
-                                                                selectedColor: Colors.red,
-                                                                onSelected: (bool selected) {
-                                                                  setState(() {
-                                                                    reportc1=selected;
-                                                                    if(selected){
-                                                                      abusive=1;
-                                                                    }
-                                                                    else{
-                                                                      abusive=0;
-                                                                    }
-                                                                  });
-                                                                }, selected: reportc1,
-                                                              ),
-                                                              ChoiceChip(
-                                                                label: Text("Irrelevant"),
-                                                                disabledColor: Colors.grey,
-                                                                selectedColor: Colors.red,
-                                                                onSelected: (bool selected) {
-                                                                  setState(() {
-                                                                    reportc2=selected;
-                                                                    if(selected) {
-                                                                      irrelevant=1;
-                                                                    }
-                                                                    else{
-                                                                      irrelevant=0;
-                                                                    }
-
-                                                                  });
-                                                                }, selected: reportc2,
-                                                              ),
-                                                              ChoiceChip(
-                                                                label: Text("Spam/Suspicious"),
-                                                                disabledColor: Colors.grey,
-                                                                selectedColor: Colors.red,
-                                                                onSelected: (bool selected) {
-                                                                  setState(() {
-                                                                    reportc3=selected;
-                                                                    if(selected){
-                                                                      spam=1;
-                                                                    }
-                                                                    else{
-                                                                      spam=0;
-                                                                    }
-                                                                  });
-                                                                },
-                                                                selected: reportc3,
-                                                                selectedShadowColor: Colors.black,
-                                                              )
-                                                            ],
-                                                          )
-                                                        ],
-                                                      ),
-                                                      actions: [
-                                                        TextButton(onPressed: () async{
-                                                          // var df= json.encode(reportmap);
-                                                          // debugPrint("Sdfdfsfs"+df.runtimeType.toString());
-                                                          // String aa=reportreason.toString();
-                                                          // print(aa);
-                                                          // print(reportmap.toString());
-                                                          await report(blogs.elementAt(index).blogid,abusive,irrelevant,spam).then((v){
-                                                            tempload=false;
-                                                            initState();
-                                                            Navigator.of(context).pop();
-                                                          });
-                                                        }, child: Text("YES",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),)),
-                                                        TextButton(onPressed: (){
-                                                          Navigator.of(context).pop();
-                                                        }, child: Text("NO",style: TextStyle(color: tertiary(), fontWeight: FontWeight.bold),))
-                                                      ],
-                                                    );
-                                                  }
-                                                );
-                                              });
-                                            },))
-                                          ],
-                                        ),
-                                        Divider(
-                                          thickness: 2,
-                                        ),
-                                        Expanded(
-                                          flex:8,
-                                          child: ListView(
-                                            physics: NeverScrollableScrollPhysics(),
-                                            children: [
-                                              Text(blogs.elementAt(index).content,
-                                                overflow: TextOverflow.ellipsis,
-                                                maxLines: 15,
-                                                style: TextStyle(fontSize: 17.5,fontFamily: 'Oswald-Extra'),
-                                              ),
-                                              (blogs.elementAt(index).content.length>900)?TextButton(
-                                                onPressed: (){
-                                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>detailedblog(blogs.elementAt(index))));
-                                                },
-                                                child: Text("Read More", style: TextStyle(color: secondary()),),
-                                              ):Text(""),
-                                            ],
-                                          ),
-                                        ),
-                                        //Spacer(),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              flex: 4,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                children: [
-                                                  Expanded(flex:1,child: CircleAvatar(
-                                                    backgroundColor: Color(int.parse(blogs.elementAt(index).authorurl)),
-                                                    child: Text(blogs.elementAt(index).authorname[0],
-                                                      style: TextStyle(color: Colors.white,fontSize: 22.5),
-                                                    ),
-                                                    // backgroundImage: NetworkImage(blogs.elementAt(index).authorurl),
-                                                  )),
-                                                  Expanded(
-                                                    flex:3,
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text(blogs.elementAt(index).authorname,overflow: TextOverflow.ellipsis,),
-                                                        SizedBox(height: 5,),
-                                                        Text(
-                                                          "Published On: " +
-                                                              blogs
-                                                                  .elementAt(index)
-                                                                  .pubdate
-                                                                  .substring(0, 10),
-                                                          style: TextStyle(fontSize: 10),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            Expanded(
-                                              flex: 3,
-                                              child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                                children: [
-                                                  IconButton(onPressed: () async{
-                                                    int id=blogs.elementAt(index).blogid;
-
-                                                    //await share(blogs.elementAt(index).blogid);
-                                                    Share.share('https://blog-spot-bit-2022.herokuapp.com/api/blogs/blog/$id');
-                                                    // scrncont.capture().then((image) async {
-                                                    //   await onButtonTap(Share.whatsapp,image!);
-                                                    //   //Capture Done
-                                                    //   setState(() {
-                                                    //     _imgfile = image;
-                                                    //   });
-                                                    // }).catchError((onError) {
-                                                    //   print(onError);
-                                                    // });
-
-                                                  }, icon: Icon(Icons.share)),
-                                                  Column(
-                                                    children: [
-                                                      (mylikeslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(CupertinoIcons.heart_fill,color: Color(0xfff50f0f),),onPressed: () async {
-                                                        if(isButtondisabled){
-                                                          setState(() {
-                                                            isButtondisabled=false;
-                                                          });
-                                                          await removefromMylikes(blogs.elementAt(index).blogid).then((v){
-                                                            setState(() {
-                                                              tempload=false;
-                                                              initState();
-                                                            });
-                                                          });
-                                                        }
-                                                        else{
-                                                          null;
-                                                        }
-                                                        // addlike(blogs.elementAt(index).blogid);
-                                                        // addtomylikes(FirebaseAuth.instance.currentUser?.email, blogs.elementAt(index).blogid);
-                                                        // setState(() {
-                                                        //   initState();
-                                                        // });
-                                                      },):IconButton(icon:Icon(CupertinoIcons.heart,),onPressed: () async {
-                                                        // await addlike(blogs.elementAt(index).blogid);
-                                                        if(isButtondisabled){
-                                                          setState(() {
-                                                            isButtondisabled=false;
-                                                          });
-                                                          await addtomylikes(blogs.elementAt(index).blogid).then((v){
-                                                            setState(() {
-
-                                                              tempload=false;
-                                                              initState();
-                                                            });
-                                                          });
-                                                        }
-                                                        else{
-                                                          null;
-                                                        }
-
-
-                                                      },),
-                                                      Text(blogs.elementAt(index).likes.toString(),style: TextStyle(fontSize: 10),)
-                                                    ],
-                                                  ),
-                                                  (mybookmarkslist.contains(blogs.elementAt(index).blogid))?IconButton(icon:Icon(Icons.bookmark),color: tertiary(),onPressed: () async{
-                                                    if(isBookmarkdisabled){
-                                                      setState(() {
-                                                        isBookmarkdisabled=false;
-                                                      });
-                                                      await removefromMybookmarks(blogs.elementAt(index).blogid).then((v){
-                                                        setState(() {
-                                                          tempload=false;
-                                                          initState();
-                                                        });
-                                                      });
-                                                    }
-                                                    else{
-                                                      null;
-                                                    }
-
-
-                                                  },):IconButton(icon:Icon(Icons.bookmark_outline_rounded),onPressed: () async{
-
-                                                    if(isBookmarkdisabled){
-                                                      setState(() {
-                                                        isBookmarkdisabled=false;
-                                                      });
-                                                      await addtomybookmarks(blogs.elementAt(index).blogid).then((v){
-                                                        setState(() {
-                                                          tempload=false;
-                                                          initState();
-                                                        });
-                                                      });
-                                                    }
-                                                    else{
-                                                      null;
-                                                    }
-
-                                                  },),
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )),
-                      ],
-                    );
-                  }),
-              onPanUpdate: (details) {
-
-                // Swiping in left direction.
-                if (details.delta.dx > 0) {
-                  Navigator.push(context,PageTransition(
-                    type: PageTransitionType.leftToRight,
-                    child: profile(),
-                  ),).then((value) {
-                    setState(() {
-                      tempload=false;
-                      initState();
-                    });
-                  });
-                }
-              },
-            ),
-          ),
+          ),): null,
           bottomNavigationBar:Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -900,7 +582,6 @@ updateblog() async {
                     onPressed: () async {
                     Navigator.push(context, MaterialPageRoute(builder: (context)=>addblog())).then((value)
                     {
-                      print("after add blog");
                       tempload=true;
                       initState();
                     });
@@ -957,7 +638,7 @@ class _profileState extends State<profile> {
       profilecolor= prefs.getString("profile_color");
     });
 
-    // print(int.parse(profilecolor.toString()));
+
   }
   @override
   Widget build(BuildContext context) {
@@ -1197,7 +878,6 @@ class _myblogsState extends State<myblogs> {
   mybloggetter() async{
     final prefs=await SharedPreferences.getInstance();
     String? uid=prefs.getString("id");
-    // print("lksjflkjsdfljsd"+uid.toString());
     await myblogsfunc(uid.toString()).then((v){
     mybloglist=v;
       mounted?setState(() {
@@ -1401,7 +1081,6 @@ class _blogdetailState extends State<blogdetail> {
                 ),
               ),
               onDoubleTap: (){
-                print(MediaQuery.of(context).padding.bottom);
               },
             ),
           ],
