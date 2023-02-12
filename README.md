@@ -1,16 +1,13 @@
-# blogspotbit
+# **BlogspotBIT**
+### About
+It is a blogging app developed for my college students and teachers. Using this app the user can express his/her thoughts .I developed this app along with @Balasuriya29. The user can share,like and report any blog. If a blog reaches a maximum number of reports (As of now the limit is 5) the blog will be automatically deleted. 
 
-App share you thoughts daily
+### Screenshots
+![image](https://i.ibb.co/ZV1qN0f/1649306629473.jpg)  
 
-## Getting Started
+![image](https://i.ibb.co/7rYr6yp/1649306629476.jpg)
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Tech Stack
+* Flutter
+* MongoDB
+* NodeJS
