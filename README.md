@@ -4,9 +4,8 @@ It is a blogging app developed for my college students and teachers. Using this 
 
 ### Screenshots
 
-![image](https://i.ibb.co/ZV1qN0f/1649306629473.jpg)  
+<img src="https://i.ibb.co/ZV1qN0f/1649306629473.jpg" width="150" height="280"> <img src="https://user-images.githubusercontent.com/85630639/219275076-5a8521b2-fd6b-4fba-a5b6-915381103564.jpg" width="150" height="280">
 
-![1649306629476](https://user-images.githubusercontent.com/85630639/219275076-5a8521b2-fd6b-4fba-a5b6-915381103564.jpg)
 
 ### Tech Stack
 * Flutter
